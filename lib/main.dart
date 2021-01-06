@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_animated_linechart/fl_animated_linechart.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class Expansionpanel extends StatefulWidget {
-  Expansionpaneltate createState() =>  Expansionpaneltate();
+class DeviceRoute extends StatefulWidget {
+  DeviceRouteState createState() =>  DeviceRouteState();
 }
 class NewItem {
   bool isExpanded;
@@ -12,7 +12,7 @@ class NewItem {
   final Icon iconpic;
   NewItem(this.isExpanded, this.header, this.body, this.iconpic);
 }
-class Expansionpaneltate extends State<Expansionpanel> {
+class DeviceRouteState extends State<DeviceRoute> {
   List<NewItem> items = <NewItem>[
     NewItem(
         false, // isExpanded ?
@@ -73,13 +73,20 @@ class Expansionpaneltate extends State<Expansionpanel> {
         ),
       ],
     );
-    Scaffold scaffold =  Scaffold(
-      appBar:  AppBar(
-        title:  Text("ExpansionPanelList"),
-      ),
-      body: List_Criteria,
+
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Device Route"),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+
+        ),
+        body: List_Criteria,
     );
-    return scaffold;
   }
 }
 
@@ -161,9 +168,21 @@ class FirstRoute extends StatelessWidget {
       body: ListView(
         children: <Widget>[
         Container(
-        height: 150,
-        color: Colors.lightBlueAccent,
-        child: Icon(Icons.add),
+        child: Stack(
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.all(10.0),
+              color: Colors.blueAccent[600],
+              width: 48.0,
+              height: 48.0,
+              child: TextField(
+                  decoration: InputDecoration(
+                      hintText: '123'
+                  ),
+            )
+            ),
+          ],
+        )
       ),
         /*child: ElevatedButton(
           child: Text('Open route'),
@@ -216,11 +235,11 @@ class FirstRoute extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(Icons.alarm_sharp),
-              title: Text('Profile'),
+              title: Text('Alarms'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SecondRoute()),
+                  MaterialPageRoute(builder: (context) => AlarmRoute()),
                 );
               },
             ),
@@ -241,12 +260,12 @@ class FirstRoute extends StatelessWidget {
   }
 }
 
-class SecondRoute extends StatelessWidget {
+class AlarmRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Second Route"),
+        title: Text("Alarm Route"),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -255,45 +274,48 @@ class SecondRoute extends StatelessWidget {
         ),
 
       ),
-      body: Center(
-          child: Text('Go back!'),
-      ),
-    );
-  }
-}
-
-class DeviceRoute extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Device Route"),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-
-      ),
-      body: Row(
+      body: ListView(
         children: <Widget>[
-          Expanded(
-            child: RaisedButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Expansionpanel()));
-              },
-              child: Text('Find devices'),
-            ),
-          ),
-        ],
+
+    ]
+
       ),
     );
   }
 }
+
+// class DeviceRoute extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text("Device Route"),
+//         leading: IconButton(
+//           icon: Icon(Icons.arrow_back),
+//           onPressed: () {
+//             Navigator.pop(context);
+//           },
+//         ),
+//
+//       ),
+//       body: Row(
+//         children: <Widget>[
+//           Expanded(
+//             child: RaisedButton(
+//               onPressed: () {
+//                 Navigator.push(
+//                     context,
+//                     MaterialPageRoute(
+//                         builder: (BuildContext context) => Expansionpanel()));
+//               },
+//               child: Text('Find devices'),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class AboutRoute extends StatelessWidget {
   @override
@@ -308,8 +330,19 @@ class AboutRoute extends StatelessWidget {
           },
         ),
       ),
-      body: Center(
-
+      body: ListView(
+       children: <Widget>[
+         Container(
+           child: null,
+         ),
+         Container(
+           child: TextField(
+             decoration: InputDecoration(
+                 hintText: 'your name'
+             ),
+           ),
+         )
+       ]
       )
     );
   }
