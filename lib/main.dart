@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'ble_views.dart';
 
 class DeviceRoute extends StatefulWidget {
   DeviceRouteState createState() =>  DeviceRouteState();
@@ -221,7 +222,12 @@ class FirstRoute extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.account_circle_sharp),
               title: const Text('Your Profile'),
-              onTap: null,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FlutterBlueRoute()),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.bluetooth_connected),
