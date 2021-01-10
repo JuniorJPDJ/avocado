@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fl_animated_linechart/fl_animated_linechart.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class DeviceRoute extends StatefulWidget {
@@ -90,6 +89,7 @@ class DeviceRouteState extends State<DeviceRoute> {
   }
 }
 
+
 class PointsLineChart extends StatelessWidget {
   final List<charts.Series> seriesList;
   final bool animate;
@@ -101,7 +101,7 @@ class PointsLineChart extends StatelessWidget {
     return new PointsLineChart(
       _createSampleData(),
       // Disable animations for image tests.
-      animate: false,
+      animate: true,
     );
   }
 
