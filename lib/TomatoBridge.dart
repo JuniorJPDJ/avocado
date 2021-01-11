@@ -12,9 +12,35 @@ enum TOMATO_STATE {
 }
 
 const TOMATO_HEADER_LENGTH = 18;
+const TOMATO_PATCH_SUFFIX_LENGTH = 6;
 
 class TomatoBridgePacket {
+  Uint8List _data;
+  FreestyleLibrePacket packet;
 
+  // TOMATO_HEADER + FREESTYLELIBRE_PACKET + 1B SUFFIX + optional TOMATO_PATCH_SUFFIX
+
+  TomatoBridgePacket(this._data, {DateTime readDate}){
+    packet = FreestyleLibrePacket(
+        _data.sublist(TOMATO_HEADER_LENGTH, TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH),
+        readDate: readDate
+    );
+  }
+
+  int get batteryLevel => _data[13];
+
+  DateTime get readDate => packet.readDate;
+
+  Uint8List get patchUid => _data.sublist(5, 13);
+
+  Uint8List get patchInfo =>
+      _data.length >= TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH + 1 + TOMATO_PATCH_SUFFIX_LENGTH
+          ? _data.sublist(
+        TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH + 1,
+        TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH + 1 + TOMATO_PATCH_SUFFIX_LENGTH
+      ) : null;
+
+  // TODO: Freestyle Libre Serial Number decoding
 }
 
 // https://github.com/NightscoutFoundation/xDrip/blob/2020.12.18/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java#L237
@@ -41,6 +67,7 @@ class TomatoBridge {
   void _onRX(List<int> _data) {
     Uint8List data = Uint8List.fromList(_data);
     log("Recieved data: ${toHex(data)}", name: "TomatoBridge");
+
     if (state == TOMATO_STATE.REQUEST_DATA_SENT) {
       if (data.length == 1 && data[0] == 0x34) {
         log("No sensor found near bridge", name: "TomatoBridge");
@@ -68,8 +95,7 @@ class TomatoBridge {
       // MOAR DATAAAA!
       // TODO: check if there's any packet assembled
       // TODO: check for checksum and reset bridge on error
-      // TODO: should be done better
-      _rxBuf = Uint8List.fromList(_rxBuf + data);
+      _rxBuf = Uint8List.fromList(_rxBuf + data);   // didn't find better way to concatenate byte arrays
     } else {
       // only option is NULL-STATE - class not initialized
       log("RX on uninitialized bridge", name: "TomatoBridge");

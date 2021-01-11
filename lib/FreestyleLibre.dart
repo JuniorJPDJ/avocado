@@ -3,6 +3,9 @@ import 'dart:math';
 
 const FREESTYLELIBRE_PACKET_LENGTH = 344;
 
+// TODO: verify packet CRC
+// TODO: validate patch info
+
 enum FreeStyleLibreSensorStatus {
   unknown,
   notYetStarted,
@@ -18,11 +21,7 @@ class FreestyleLibreGlucoseData {
   int index;
   bool historical;
 
-  FreestyleLibreGlucoseData(FreestyleLibrePacket packet, int index, {historical = false}){
-    this.packet = packet;
-    this.index = index;
-    this.historical = historical;
-  }
+  FreestyleLibreGlucoseData(this.packet, this.index, {this.historical = false});
 
   int get _i {
     // ring buffer index
@@ -37,50 +36,37 @@ class FreestyleLibreGlucoseData {
     return (packet._data[_i * 6 + offset] | packet._data[_i * 6 + offset + 1] << 8) & 0x1FFF;
   }
 
-  int get sensorTime {
-    return max(0, historical ?
+  int get sensorTime =>
+    max(0, historical ?
       ((packet.sensorAge - 3) ~/ 15 - index) * 15
         :
       packet.sensorAge - index
     );
-  }
 
-  DateTime get time {
-    return packet.sensorFirstUse.add(Duration(minutes: sensorTime));
-  }
+  DateTime get time => packet.sensorFirstUse.add(Duration(minutes: sensorTime));
 }
 
 class FreestyleLibrePacket {
   Uint8List _data;
   DateTime readDate;
 
-  FreestyleLibrePacket(Uint8List data, {DateTime readDate}){
+  FreestyleLibrePacket(this._data, {DateTime readDate}){
     readDate ??= DateTime.now();
-
-    _data = data;
     this.readDate = DateTime(readDate.year, readDate.month, readDate.day, readDate.hour, readDate.minute);
   }
 
-  FreeStyleLibreSensorStatus get status {
-    return _data[4] < FreeStyleLibreSensorStatus.values.length ? FreeStyleLibreSensorStatus.values[_data[4]] : FreeStyleLibreSensorStatus.unknown;
-  }
+  FreeStyleLibreSensorStatus get status =>
+    _data[4] < FreeStyleLibreSensorStatus.values.length ? FreeStyleLibreSensorStatus.values[_data[4]] : FreeStyleLibreSensorStatus.unknown;
 
-  bool get sensorReady {
-    return [FreeStyleLibreSensorStatus.starting, FreeStyleLibreSensorStatus.ready].contains(status);
-  }
+  bool get sensorReady =>
+      [FreeStyleLibreSensorStatus.starting, FreeStyleLibreSensorStatus.ready].contains(status);
 
-  int get _indexHistory {
-    return _data[27];
-  }
+  int get _indexHistory => _data[27];
 
-  int get _indexTrend {
-    return _data[26];
-  }
+  int get _indexTrend => _data[26];
 
-  int get sensorAge {
-    return _data[317] << 8 | _data[316];
-    // in minutes
-  }
+  // in minutes
+  int get sensorAge => _data[317] << 8 | _data[316];
 
   DateTime get sensorFirstUse {
     var d = readDate.subtract(Duration(minutes: sensorAge));
