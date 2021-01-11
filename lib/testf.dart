@@ -19,27 +19,19 @@ void printPacket(FreestyleLibrePacket packet){
 }
 
 main() {
+
   var readTime1 = DateTime(2020, 12, 3, 18, 50, 14);
   var dump1 = base64Decode("UnnQFgMAAAAAAAAAAAAAAAAAAAAAAAAA74sKEpMDyAxZAJUDyChZAJwDyABZAKQDyAhZALkDyDRZAMgDyDxZAOMDyARZAO0DyPhYAOcDyPRYAOgDyKhYAGsDyIRYAHYDyLRYAH4DyMhYAH4DyLBYAIADyKRYAI0DyMhYAMcHyCiYAKsHyARYACwHyBCYAIUGyHBYABQFyDRYAEYEyFhXAMQDyByXAF8DiNJXAAMDyCCXAH0DyLRXAOQDyPSXADcEyAiYAA4EyFhYAJIDyESYAHkDyDSYAHQDyHBYACgDyKRYAH8DyLBYAA0GyCBZAPEFyJBYAOwFyIRYAOcFyOhYAP4FyAhZAHMGyJxZAL0GyFxZACEHyHhZAIYHyPRYAEAIyKhYAIIIyJBYAIgIyGyYAFUIyGhYACoIyBxYAJsXAABgWgABYAozURQHloBaAO2mGnMayATseWQ=");
 
   var readTime2 = DateTime(2020, 12, 3, 18, 51, 16);
   var dump2 = base64Decode("UnnQFgMAAAAAAAAAAAAAAAAAAAAAAAAAcjMMEpMDyAxZAJUDyChZAJwDyABZAKQDyAhZALkDyDRZAMgDyDxZAOMDyARZAO0DyPhYAOcDyPRYAOgDyKhYAN4DyGSYAOMDyERYAH4DyMhYAH4DyLBYAIADyKRYAI0DyMhYAMcHyCiYAKsHyARYACwHyBCYAIUGyHBYABQFyDRYAEYEyFhXAMQDyByXAF8DiNJXAAMDyCCXAH0DyLRXAOQDyPSXADcEyAiYAA4EyFhYAJIDyESYAHkDyDSYAHQDyHBYACgDyKRYAH8DyLBYAA0GyCBZAPEFyJBYAOwFyIRYAOcFyOhYAP4FyAhZAHMGyJxZAL0GyFxZACEHyHhZAIYHyPRYAEAIyKhYAIIIyJBYAIgIyGyYAFUIyGhYACoIyBxYAJwXAABgWgABYAozURQHloBaAO2mGnMayATseWQ=");
+  
+  var readTime3 = DateTime(2021, 01, 11, 1, 24);
+  var dump3 = base64Decode("UnnQFgMAAAAAAAAAAAAAAAAAAAAAAAAAGoYFCA8FyBTZAP8EyCjZAO8EyDTZAOEEyDzZANwEyETZAP8EyNzXAPMEyNDXAMgEyMzXAL4EyNDXAKsEyBjYALcEyFjYAM8EyIzYAOUEyLjYAOQEyNjYAOcEyPDYAAMFyAjZAM4HyPjZAPIFyISbAC8FyKybAAQFyMybABUFyBzaAFAFyCjZACUFyDjYANMEyMzXAOIJyOjZAGMJyMTZAFIHyLzZAGAGyOTYAB0GyODYAFoFyGjYAFsFyIDYACAFyLzYAC4FyGTZADgGyNjZAJMHyKzZADAIyLCaABgIyBicABIIyGScACEIyJAcAXUIyFQcAZsIyKgcATcJyJjbACwJyODbAPsIyMTbAPEIyFybAFYJyNSZAHMJyATZAIMJyETZAIZLAABVWgABYAoPURQHloBaAO2mEp4ayAThOWYpoggAAW06");
 
   printPacket(FreestyleLibrePacket(dump1, readDate: readTime1));
   print("");
   printPacket(FreestyleLibrePacket(dump2, readDate: readTime2));
-}
-
-main2(){
-  for(int sensorAge = -3; sensorAge < 6200; ++sensorAge) {
-    for(int index = 0; index < 32; ++index) {
-      var w_abs = ((sensorAge - 3) ~/ 15).abs() * 15 - index * 15;
-      var wo_abs = ((sensorAge - 3) ~/ 15) * 15 - index * 15;
-      if(w_abs != wo_abs) {
-        print("Age: $sensorAge, index: $index");
-        print("ABS: ${w_abs}");
-        print("NON-ABS: ${wo_abs}");
-      }
-    }
-  }
+  print("");
+  printPacket(FreestyleLibrePacket(dump3, readDate: readTime3));
 }
