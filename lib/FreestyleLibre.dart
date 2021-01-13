@@ -1,6 +1,10 @@
 import 'dart:typed_data';
 import 'dart:math';
 
+/*
+    Most of this code is based on xDrip+ code
+*/
+
 const FREESTYLELIBRE_PACKET_LENGTH = 344;
 
 // TODO: verify packet CRC

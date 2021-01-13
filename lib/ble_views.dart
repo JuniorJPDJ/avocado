@@ -81,23 +81,24 @@ class FindDevicesScreen extends StatelessWidget {
         onRefresh: () =>
             FlutterBlue.instance.startScan(timeout: Duration(seconds: SCAN_DURATION)),
         child: SingleChildScrollView(
-          child:
-              StreamBuilder<List<ScanResult>>(
-                stream: FlutterBlue.instance.scanResults,
-                initialData: [],
-                builder: (c, snapshot) => Column(
-                  // TODO: filter devices to only Tomato
-                  //  .where((r) async => await TomatoBridge.isTomato(r.device))
-                  children: snapshot.data.map(
-                    (r) => ScanResultTile(result: r,
-                        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                            //r.device.connect();
-                            return DeviceScreen(device: r.device);
-                          }
-                        )),
-                    ),
-                  ).toList(),
-              ),
+          child: StreamBuilder<List<ScanResult>>(
+            stream: FlutterBlue.instance.scanResults,
+            initialData: [],
+            builder: (c, snapshot) {
+              return Column(
+                // TODO: filter devices to only Tomato
+                children: snapshot.data/*.where((r) => TomatoBridge.isTomato(r.device))*/.map(
+                  (r) => ScanResultTile(
+                    result: r,
+                    onTap: () => Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      //r.device.connect();
+                      return DeviceScreen(device: r.device);
+                    })),
+                  ),
+                ).toList(),
+              );
+            },
           ),
         ),
       ),
@@ -168,25 +169,25 @@ class DeviceScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Column(
-        children: <Widget>[
-        StreamBuilder<String>(
+      body: Center(
+          child: StreamBuilder<String>(
           stream: (() async* {
-            log("initing stream!", name: "DeviceScreen");
-            bridge ??= await TomatoBridge.create(device);
-            await bridge.initSensor();
+            try {
+              log("initing stream!", name: "DeviceScreen");
+              bridge ??= await TomatoBridge.create(device);
+              await bridge.initSensor();
 
-            for(int i=0; ; ++i){
-              await Future<void>.delayed(Duration(milliseconds: 500));
-              yield "rotfl $i";
+              for (int i = 0;; ++i) {
+                await Future<void>.delayed(Duration(milliseconds: 100));
+                yield "Connected ${i/10}s ago";
+              }
+            } on Exception catch(e) {
+              yield "Error while connecting: $e";
             }
           })(),
-          initialData: "kek",
-          builder: (context, snapshot) {
-            return Text(snapshot.data);
-          }
+          initialData: "Connecting",
+          builder: (context, snapshot) => Text(snapshot.data)
         )
-        ],
       )
     );
   }

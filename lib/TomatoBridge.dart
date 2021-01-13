@@ -5,42 +5,12 @@ import 'utils.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 import 'FreestyleLibre.dart';
+import 'TomatoBridgePacket.dart';
+
 
 enum TOMATO_STATE {
   REQUEST_DATA_SENT,
   RECEIVING_DATA
-}
-
-const TOMATO_HEADER_LENGTH = 18;
-const TOMATO_PATCH_SUFFIX_LENGTH = 6;
-
-class TomatoBridgePacket {
-  Uint8List _data;
-  FreestyleLibrePacket packet;
-
-  // TOMATO_HEADER + FREESTYLELIBRE_PACKET + 1B SUFFIX + optional TOMATO_PATCH_SUFFIX
-
-  TomatoBridgePacket(this._data, {DateTime readDate}){
-    packet = FreestyleLibrePacket(
-        _data.sublist(TOMATO_HEADER_LENGTH, TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH),
-        readDate: readDate
-    );
-  }
-
-  int get batteryLevel => _data[13];
-
-  DateTime get readDate => packet.readDate;
-
-  Uint8List get patchUid => _data.sublist(5, 13);
-
-  Uint8List get patchInfo =>
-      _data.length >= TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH + 1 + TOMATO_PATCH_SUFFIX_LENGTH
-          ? _data.sublist(
-        TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH + 1,
-        TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH + 1 + TOMATO_PATCH_SUFFIX_LENGTH
-      ) : null;
-
-  // TODO: Freestyle Libre Serial Number decoding
 }
 
 // https://github.com/NightscoutFoundation/xDrip/blob/2020.12.18/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java#L237
@@ -65,6 +35,7 @@ class TomatoBridge {
   }
 
   void _onRX(List<int> _data) {
+    // based on xDrip+ code
     Uint8List data = Uint8List.fromList(_data);
     log("Recieved data: ${toHex(data)}", name: "TomatoBridge");
 
@@ -104,28 +75,40 @@ class TomatoBridge {
   }
 
   void _parsePacketsFromBuffer(){
-    if(_rxBuf.length < FREESTYLELIBRE_PACKET_LENGTH + TOMATO_HEADER_LENGTH + 1) {
-      //Log.e(TAG,"Getting out, since not enough data s_acumulatedSize = " + s_acumulatedSize);
+    if(_rxBuf.length < TOMATO_MIN_PACKET_LENGTH) {
       return;
     }
 
-    var libre_data = _rxBuf.sublist(TOMATO_HEADER_LENGTH, TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH);
+    var libreData = _rxBuf.sublist(TOMATO_HEADER_LENGTH, TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH);
 
   }
 
   static Future<TomatoBridge> create(BluetoothDevice device) async {
     var self = TomatoBridge._create(device);
 
-    if(!await isTomato(device)) throw Exception("WTF.");
-
     if(await device.state.first != BluetoothDeviceState.connected)
       await device.connect();
 
 
-    self._service = (await device.discoverServices()).firstWhere((srv) => srv.uuid.toString().toUpperCase() == NRF_SERVICE);
+    self._service = (await device.discoverServices()).firstWhere(
+        (srv) => srv.uuid.toString().toUpperCase() == NRF_SERVICE,
+        orElse: (){
+          throw Exception("Not tomato? NRF service not found.");
+        }
+    );
 
-    self._rx = self._service.characteristics.firstWhere((chr) => chr.uuid.toString().toUpperCase() == NRF_CHR_RX);
-    self._tx = self._service.characteristics.firstWhere((chr) => chr.uuid.toString().toUpperCase() == NRF_CHR_TX);
+    self._rx = self._service.characteristics.firstWhere(
+        (chr) => chr.uuid.toString().toUpperCase() == NRF_CHR_RX,
+        orElse: (){
+          throw Exception("Not tomato? NRF RX characteristic not found");
+        }
+    );
+    self._tx = self._service.characteristics.firstWhere(
+        (chr) => chr.uuid.toString().toUpperCase() == NRF_CHR_TX,
+        orElse: (){
+          throw Exception("Not tomato? NRF TX characteristic not found");
+        }
+    );
 
     await self._rx.setNotifyValue(true);
     self._rx.value.listen(self._onRX);
@@ -133,26 +116,19 @@ class TomatoBridge {
     return self;
   }
 
-  static Future<bool> isTomato(BluetoothDevice device) async {
+  static bool isTomato(BluetoothDevice device) {
     if(!(device.name.startsWith("miaomiao") || device.name.startsWith("watlaa"))){
       return false;
     }
+    return true;
 
-    if(await device.state.first == BluetoothDeviceState.connected)
-      return (await device.discoverServices()).any((srv) => srv.uuid.toString().toUpperCase() == NRF_SERVICE);
-    else
-      return true;
+    // uh screw it, can't be async if want to filter by it
+    // if(await device.state.first == BluetoothDeviceState.connected)
+    //   return (await device.discoverServices()).any((srv) => srv.uuid.toString().toUpperCase() == NRF_SERVICE);
+    // else
+    //   return true;
   }
 
-  // @override
-  // Future<ByteBuffer> bridgeRawRead() async {
-  //   var buf = _rxBuf;
-  //   _rxBuf = Uint8List(0);
-  //
-  //   return buf.buffer;
-  // }
-
-  @override
   Future<void> bridgeRawWrite(Uint8List data) async {
     log("Sending data: ${toHex(data)}", name: "TomatoBridge");
     await _tx.write(data);
