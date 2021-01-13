@@ -66,7 +66,7 @@ class FirstRoute extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FlutterBlueRoute()),
+                  MaterialPageRoute(builder: (context) => DeviceRoute()),
                 );
               },
             ),
@@ -76,7 +76,7 @@ class FirstRoute extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => DeviceRoute()),
+                  MaterialPageRoute(builder: (context) => FlutterBlueRoute()),
                 );
               },
             ),
@@ -123,6 +123,7 @@ class FirstRoute extends StatelessWidget {
 
 class SlidingViewportOnSelection extends StatelessWidget {
   final List<charts.Series> seriesList;
+
   final bool animate;
 
   SlidingViewportOnSelection(this.seriesList, {this.animate});
