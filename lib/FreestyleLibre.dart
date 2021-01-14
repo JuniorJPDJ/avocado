@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'dart:math';
+import 'package:crclib/catalog.dart';
+import 'utils.dart';
 
 /*
     Most of this code is based on xDrip+ code
@@ -7,8 +9,8 @@ import 'dart:math';
 
 const FREESTYLELIBRE_PACKET_LENGTH = 344;
 
-// TODO: verify packet CRC
-// TODO: validate patch info
+bool libreCRC(Uint8List data) =>
+    Crc16Mcrf4xx().convert(data.sublist(2)) == reverseBits(data[1] << 8 | data[0], 16);
 
 enum FreeStyleLibreSensorStatus {
   unknown,
@@ -72,13 +74,7 @@ class FreestyleLibrePacket {
   // in minutes
   int get sensorAge => _data[317] << 8 | _data[316];
 
-  DateTime get sensorFirstUse {
-    var d = readDate.subtract(Duration(minutes: sensorAge));
-    // d.second = 0;
-    // d.millisecond = 0;
-    // d.microsecond = 0;
-    return d;
-  }
+  DateTime get sensorFirstUse => readDate.subtract(Duration(minutes: sensorAge));
 
   Iterable<FreestyleLibreGlucoseData> iterHistory() sync* {
     // loads history values (ring buffer, starting at _indexHistory. byte 124-315)
@@ -95,6 +91,12 @@ class FreestyleLibrePacket {
     for(var index = 0; index < 16; index++)
       yield FreestyleLibreGlucoseData(this, index);
   }
+
+  // https://github.com/NightscoutFoundation/xDrip/blob/2021.01.13/app/src/main/java/com/eveningoutpost/dexdrip/UtilityModels/LibreUtils.java#L68
+  bool areChecksumsCorrect() =>
+    libreCRC(_data.sublist(0, 24)) &&
+    libreCRC(_data.sublist(24, 320)) &&
+    libreCRC(_data.sublist(320, 344));
 }
 
 class FreestyleLibre {
