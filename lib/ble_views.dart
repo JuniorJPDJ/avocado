@@ -7,7 +7,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:pretty_things/TomatoBridge.dart';
+import 'TomatoBridge.dart';
+import 'utils.dart';
 import 'ble_widgets.dart';
 
 const SCAN_DURATION = 15;
@@ -170,23 +171,30 @@ class DeviceScreen extends StatelessWidget {
         ],
       ),
       body: Center(
-          child: StreamBuilder<String>(
-          stream: (() async* {
-            try {
-              log("initing stream!", name: "DeviceScreen");
-              bridge ??= await TomatoBridge.create(device);
-              await bridge.initSensor();
+          child: SingleChildScrollView(
+            child: StreamBuilder<String>(
+            stream: (() async* {
+              try {
+                var data = StringBuffer();
+                log("initing stream!", name: "DeviceScreen");
 
-              for (int i = 0;; ++i) {
-                await Future<void>.delayed(Duration(milliseconds: 100));
-                yield "Connected ${i/10}s ago";
+                bridge ??= await TomatoBridge.create(device);
+                bridge.rxPacketStream.listen((packet) {
+                  data.write(parseBTPacket(packet));
+                });
+                await bridge.initSensor();
+
+                for (int i = 0;; ++i) {
+                  await Future<void>.delayed(Duration(milliseconds: 100));
+                  yield "Connected ${i/10}s ago\n${data.toString()}";
+                }
+              } on Exception catch(e) {
+                yield "Error while connecting: $e";
               }
-            } on Exception catch(e) {
-              yield "Error while connecting: $e";
-            }
-          })(),
-          initialData: "Connecting",
-          builder: (context, snapshot) => Text(snapshot.data)
+            })(),
+            initialData: "Connecting",
+            builder: (context, snapshot) => Text(snapshot.data)
+          )
         )
       )
     );

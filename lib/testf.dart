@@ -1,41 +1,11 @@
 import 'dart:convert';
-import 'package:pretty_things/utils.dart';
 
+import 'utils.dart';
 import 'TomatoBridgePacket.dart';
 import "FreestyleLibre.dart";
 
-void printReading(FreestyleLibreGlucoseData reading, num calibrationMultipiler){
-  print("Reading ${reading.index}: ${reading.glucoseReading/calibrationMultipiler} (${reading.glucoseReading}), time: ${reading.time} (${reading.sensorTime})");
-}
-
-void printPacket(FreestyleLibrePacket packet, num calibrationMultipiler){
-  print("Packet checksum valid: ${packet.areChecksumsCorrect()}");
-  print("Sensor status: ${packet.status}");
-  print("Sensor age: ${packet.sensorAge} min, first use: ${packet.sensorFirstUse}, read time: ${packet.readDate}");
-
-  print("\nTrend readings:");
-  for(FreestyleLibreGlucoseData reading in packet.iterTrend())
-    printReading(reading, calibrationMultipiler);
-
-  /*
-  print("\nHistory readings:");
-  for(FreestyleLibreGlucoseData reading in packet.iterHistory())
-    printReading(reading, calibrationMultipiler);
-  */
-
-  print("");
-}
-
-void printBTPacket(TomatoBridgePacket packet, num calibrationMultipiler){
-  print("Tomato battery level: ${packet.batteryLevel}");
-  print("Sensor patch: uid=${toHex(packet.patchUid)}, info=${toHex(packet.patchInfo)}");
-  print("Sensor serial number: ${packet.freestyleLibreSerialNumber}");
-  printPacket(packet.packet, calibrationMultipiler);
-}
 
 main() {
-  double cal = 8.5;
-
   var libreDumps = [
     // xDrip logs
     [DateTime(2020, 12, 3, 18, 50, 14), "UnnQFgMAAAAAAAAAAAAAAAAAAAAAAAAA74sKEpMDyAxZAJUDyChZAJwDyABZAKQDyAhZALkDyDRZAMgDyDxZAOMDyARZAO0DyPhYAOcDyPRYAOgDyKhYAGsDyIRYAHYDyLRYAH4DyMhYAH4DyLBYAIADyKRYAI0DyMhYAMcHyCiYAKsHyARYACwHyBCYAIUGyHBYABQFyDRYAEYEyFhXAMQDyByXAF8DiNJXAAMDyCCXAH0DyLRXAOQDyPSXADcEyAiYAA4EyFhYAJIDyESYAHkDyDSYAHQDyHBYACgDyKRYAH8DyLBYAA0GyCBZAPEFyJBYAOwFyIRYAOcFyOhYAP4FyAhZAHMGyJxZAL0GyFxZACEHyHhZAIYHyPRYAEAIyKhYAIIIyJBYAIgIyGyYAFUIyGhYACoIyBxYAJsXAABgWgABYAozURQHloBaAO2mGnMayATseWQ="],
@@ -44,7 +14,7 @@ main() {
 
   for(var i in libreDumps){
     var packet = FreestyleLibrePacket(base64Decode(i[1]), readDate: i[0]);
-    printPacket(packet, cal);
+    print(parsePacket(packet));
   }
 
   var miaoDumps = [
@@ -65,6 +35,6 @@ main() {
 
   for(var i in miaoDumps){
     var btPacket = TomatoBridgePacket(base64Decode(i[1]), readDate: i[0]);
-    printBTPacket(btPacket, cal);
+    print(parseBTPacket(btPacket));
   }
 }
