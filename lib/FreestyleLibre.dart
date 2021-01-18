@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:math';
 import 'package:crclib/catalog.dart';
+import 'GlucoseData.dart';
 import 'utils.dart';
 
 /*
@@ -22,12 +23,17 @@ enum FreeStyleLibreSensorStatus {
   inFailure,
 }
 
-class FreestyleLibreGlucoseData {
+class FreestyleLibreGlucoseData implements GlucoseData {
   FreestyleLibrePacket packet;
   int index;
   bool historical;
+  num _calibrationFactor;
 
-  FreestyleLibreGlucoseData(this.packet, this.index, {this.historical = false});
+  FreestyleLibreGlucoseData(this.packet, this.index, this._calibrationFactor, {this.historical = false});
+
+  void calibrate(num calibrationFactor){
+    this._calibrationFactor = calibrationFactor;
+  }
 
   int get _i {
     // ring buffer index
@@ -36,11 +42,13 @@ class FreestyleLibreGlucoseData {
     return i;
   }
 
-  int get glucoseReading {
+  int get rawValue {
     var offset = historical ? 124 : 28;
 
     return (packet._data[_i * 6 + offset] | packet._data[_i * 6 + offset + 1] << 8) & 0x1FFF;
   }
+
+  double get value => rawValue * _calibrationFactor;
 
   int get sensorTime =>
     max(0, historical ?
@@ -50,13 +58,31 @@ class FreestyleLibreGlucoseData {
     );
 
   DateTime get time => packet.sensorFirstUse.add(Duration(minutes: sensorTime));
+
+  @override
+  GlucoseDataSource get source => packet.source;
+
+  @override
+  bool operator ==(Object other) =>
+      other is FreestyleLibreGlucoseData &&
+      other?.packet?.serialNumber == packet?.serialNumber &&
+      other?.sensorTime == sensorTime &&
+      other?.rawValue == rawValue;
+
+  @override
+  int get hashCode => packet?.serialNumber.hashCode ^
+      sensorTime.hashCode ^
+      rawValue.hashCode;
 }
 
 class FreestyleLibrePacket {
   Uint8List _data;
   DateTime readDate;
+  GlucoseDataSource source;
+  String serialNumber;
+  num _calibrationFactor;
 
-  FreestyleLibrePacket(this._data, {DateTime readDate}){
+  FreestyleLibrePacket(this._data, this._calibrationFactor, {this.serialNumber, DateTime readDate, this.source}){
     readDate ??= DateTime.now();
     this.readDate = DateTime(readDate.year, readDate.month, readDate.day, readDate.hour, readDate.minute);
   }
@@ -81,7 +107,7 @@ class FreestyleLibrePacket {
     // history are readings in 15 minutes interval
     // most recent value corresponds to (sensorAge - 3) % 15 + 3 ago (thanks @dspnikder)
     for(var index = 0; index < 32; index++)
-      yield FreestyleLibreGlucoseData(this, index, historical: true);
+      yield FreestyleLibreGlucoseData(this, index, _calibrationFactor, historical: true);
   }
 
   Iterable<FreestyleLibreGlucoseData> iterTrend() sync* {
@@ -89,7 +115,7 @@ class FreestyleLibrePacket {
     // trend values are readings in 1 minute interval
     // most recent value corresponds to sensorAge timing
     for(var index = 0; index < 16; index++)
-      yield FreestyleLibreGlucoseData(this, index);
+      yield FreestyleLibreGlucoseData(this, index, _calibrationFactor);
   }
 
   // https://github.com/NightscoutFoundation/xDrip/blob/2021.01.13/app/src/main/java/com/eveningoutpost/dexdrip/UtilityModels/LibreUtils.java#L68
@@ -97,12 +123,4 @@ class FreestyleLibrePacket {
     libreCRC(_data.sublist(0, 24)) &&
     libreCRC(_data.sublist(24, 320)) &&
     libreCRC(_data.sublist(320, 344));
-}
-
-class FreestyleLibre {
-  // NFCInterface _nfcInterface;
-
-  // FreestyleLibre(NFCInterface nfcInterface) {
-  //   _nfcInterface = nfcInterface;
-  // }
 }

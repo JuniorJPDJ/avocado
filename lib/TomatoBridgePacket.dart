@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'GlucoseData.dart';
 import 'FreestyleLibre.dart';
 import 'utils.dart';
 
@@ -24,16 +25,21 @@ class TomatoBridgePacket {
 
   // TOMATO_HEADER + FREESTYLELIBRE_PACKET + 1B SUFFIX (wtf?) + optional TOMATO_PATCH_SUFFIX
 
-  TomatoBridgePacket(this._data, {DateTime readDate}){
+  TomatoBridgePacket(this._data, num _calibrationFactor, {DateTime readDate, GlucoseDataSource source}){
     packet = FreestyleLibrePacket(
         _data.sublist(TOMATO_HEADER_LENGTH, TOMATO_HEADER_LENGTH + FREESTYLELIBRE_PACKET_LENGTH),
-        readDate: readDate
+        _calibrationFactor,
+        serialNumber: this.freestyleLibreSerialNumber,
+        readDate: readDate,
+        source: source
     );
   }
 
   int get batteryLevel => _data[13];
 
   DateTime get readDate => packet.readDate;
+
+  GlucoseDataSource get source => packet.source;
 
   // useless?
   Uint8List get patchUid => _data.sublist(5, 13);

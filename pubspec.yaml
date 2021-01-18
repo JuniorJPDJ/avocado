@@ -32,6 +32,7 @@ dependencies:
   fl_animated_linechart: ^1.1.4
   flutter_blue: ^0.7.3
   crclib: ^2.0.0
+  rxdart: ^0.24.0
 
 dev_dependencies:
   flutter_test:

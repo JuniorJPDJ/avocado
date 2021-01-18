@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
-
-import 'utils.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-
+import 'package:rxdart/rxdart.dart';
 import 'FreestyleLibre.dart';
+import 'utils.dart';
 import 'TomatoBridgePacket.dart';
-
+import 'GlucoseData.dart';
 
 enum TOMATO_STATE {
   REQUEST_DATA_SENT,
@@ -15,7 +14,7 @@ enum TOMATO_STATE {
 }
 
 // https://github.com/NightscoutFoundation/xDrip/blob/2020.12.18/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java#L237
-class TomatoBridge {
+class TomatoBridge implements GlucoseDataSource {
   // https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.3.0%2Fble_sdk_app_nus_eval.html
   static const String NRF_SERVICE = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
   static const String NRF_CHR_TX = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
@@ -29,14 +28,29 @@ class TomatoBridge {
   Uint8List _rxBuf;
 
   StreamController<TomatoBridgePacket> _rxPacketSC;
+  BehaviorSubject<FreestyleLibreGlucoseData> _glucoseDataSC;
+
+  num _calibrationFactor;
+  Duration connTimeout;
 
   TOMATO_STATE state;
 
-  TomatoBridge._create(BluetoothDevice device){
+  TomatoBridge._create(BluetoothDevice device, this.connTimeout){
     _device = device;
     _rxBuf = Uint8List(0);
     _rxPacketSC = StreamController.broadcast();
+    _glucoseDataSC = BehaviorSubject();
+
+    rxPacketStream.listen(_onPacket);
   }
+
+  @override
+  Stream<GlucoseData> get dataStream => _glucoseDataSC.stream;
+
+  Stream<TomatoBridgePacket> get rxPacketStream => _rxPacketSC.stream;
+
+  @override
+  String get id => _device.id.toString();
 
   void _onRX(List<int> _data) {
     // based on xDrip+ code
@@ -88,19 +102,42 @@ class TomatoBridge {
     TomatoBridgePacket packet;
 
     if(_rxBuf.length >= TOMATO_MIN_PACKET_LENGTH + TOMATO_PATCH_SUFFIX_LENGTH)
-      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH + TOMATO_PATCH_SUFFIX_LENGTH));
+      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH + TOMATO_PATCH_SUFFIX_LENGTH), _calibrationFactor, source: this);
     else
-      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH));
+      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH), _calibrationFactor, source: this);
 
-    // TODO: check checksum and reset bridge on error
     _rxPacketSC.add(packet);
   }
 
-  static Future<TomatoBridge> create(BluetoothDevice device) async {
-    var self = TomatoBridge._create(device);
+  Future<void> _onPacket(TomatoBridgePacket packet) async {
+    log(parseBTPacket(packet));
+
+    if(packet.packet.areChecksumsCorrect()){
+      if(_calibrationFactor != null){ // skip propagation of data if not calibrated
+        List<FreestyleLibreGlucoseData> measurements = List.from(packet.packet.iterTrend());
+
+        // cut already handled measurements
+        int index = measurements.indexOf(_glucoseDataSC.value);
+        if(_glucoseDataSC.value != null && index > 0)
+          measurements = measurements.sublist(0, index);
+
+        // oldest first
+        for(FreestyleLibreGlucoseData m in measurements.reversed)
+          _glucoseDataSC.add(m);
+      }
+    } else {
+      await Future.delayed(Duration(seconds: 5));
+      initSensor();
+    }
+  }
+
+  static Future<TomatoBridge> create(BluetoothDevice device, {Duration timeout}) async {
+    timeout ??= Duration(seconds: 30);
+
+    var self = TomatoBridge._create(device, timeout);
 
     if(await device.state.first != BluetoothDeviceState.connected)
-      await device.connect();
+      await device.connect(timeout: timeout);
 
 
     self._service = (await device.discoverServices()).firstWhere(
@@ -129,11 +166,8 @@ class TomatoBridge {
     return self;
   }
 
-  Stream<TomatoBridgePacket> get rxPacketStream => _rxPacketSC.stream;
-
   static bool isTomato(BluetoothDevice device) =>
       device.name.startsWith("miaomiao") || device.name.startsWith("watlaa");
-
 
   Future<void> bridgeRawWrite(Uint8List data) async {
     log("Sending data: ${toHex(data)}", name: "TomatoBridge");
@@ -142,11 +176,22 @@ class TomatoBridge {
 
   Future<void> initSensor() async {
     if(await _device.state.first != BluetoothDeviceState.connected)
-      await _device.connect();
+      await _device.connect(timeout: connTimeout);
     // Make tomato send data every 5 minutes (0xD1, 0x05), start reading (0xF0)
     // I'VE NO DUCKING IDEA WHAT IT REALLY MEANS AND FOUND NOTHING ABOUT IT, JUST NEED TO PRAY IT WORKS
     await bridgeRawWrite(Uint8List.fromList([0xD1, 0x05, 0xF0]));
     log("Sent init sequence", name: "TomatoBridge");
     state = TOMATO_STATE.REQUEST_DATA_SENT;
+  }
+
+  @override
+  void calibrate(num factor) {
+    _glucoseDataSC.value.calibrate(factor);
+    _calibrationFactor = factor;
+  }
+
+  @override
+  Future<void> query() async {
+    await initSensor();
   }
 }

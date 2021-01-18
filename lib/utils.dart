@@ -30,7 +30,7 @@ Stream<String> accumulateStream(Stream<String> stream) async* {
 
 
 String parseReading(FreestyleLibreGlucoseData reading) =>
-    "Reading ${reading.index}: raw value: ${reading.glucoseReading}, time: ${reading.time} (${reading.sensorTime})\n";
+    "Reading ${reading.index}: raw value: ${reading.rawValue}, time: ${reading.time} (${reading.sensorTime})\n";
 
 
 String parsePacket(FreestyleLibrePacket packet){

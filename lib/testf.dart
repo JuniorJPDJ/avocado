@@ -6,6 +6,8 @@ import "FreestyleLibre.dart";
 
 
 main() {
+  num calibrationFactor = 13;
+
   var libreDumps = [
     // xDrip logs
     [DateTime(2020, 12, 3, 18, 50, 14), "UnnQFgMAAAAAAAAAAAAAAAAAAAAAAAAA74sKEpMDyAxZAJUDyChZAJwDyABZAKQDyAhZALkDyDRZAMgDyDxZAOMDyARZAO0DyPhYAOcDyPRYAOgDyKhYAGsDyIRYAHYDyLRYAH4DyMhYAH4DyLBYAIADyKRYAI0DyMhYAMcHyCiYAKsHyARYACwHyBCYAIUGyHBYABQFyDRYAEYEyFhXAMQDyByXAF8DiNJXAAMDyCCXAH0DyLRXAOQDyPSXADcEyAiYAA4EyFhYAJIDyESYAHkDyDSYAHQDyHBYACgDyKRYAH8DyLBYAA0GyCBZAPEFyJBYAOwFyIRYAOcFyOhYAP4FyAhZAHMGyJxZAL0GyFxZACEHyHhZAIYHyPRYAEAIyKhYAIIIyJBYAIgIyGyYAFUIyGhYACoIyBxYAJsXAABgWgABYAozURQHloBaAO2mGnMayATseWQ="],
@@ -13,7 +15,7 @@ main() {
   ];
 
   for(var i in libreDumps){
-    var packet = FreestyleLibrePacket(base64Decode(i[1]), readDate: i[0]);
+    var packet = FreestyleLibrePacket(base64Decode(i[1]), calibrationFactor, readDate: i[0]);
     print(parsePacket(packet));
   }
 
@@ -34,7 +36,7 @@ main() {
   ];
 
   for(var i in miaoDumps){
-    var btPacket = TomatoBridgePacket(base64Decode(i[1]), readDate: i[0]);
+    var btPacket = TomatoBridgePacket(base64Decode(i[1]), calibrationFactor, readDate: i[0]);
     print(parseBTPacket(btPacket));
   }
 }
