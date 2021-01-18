@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter/material.dart';
 
+class ListItem{
+
+}
 
 class AlarmRoute extends StatelessWidget {
   @override
@@ -13,8 +18,46 @@ class AlarmRoute extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.add_alert),
+            tooltip: 'Add alert',
+            onPressed: () {
+              null;
+            },
+          ),
+        ],
       ),
-      body: ListView(children: <Widget>[]),
+      body: Slidable(
+        actionPane: SlidableDrawerActionPane(),
+        actionExtentRatio: 0.25,
+        child: Container(
+          color: Colors.white,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.indigoAccent,
+              child: Text('3'),
+              foregroundColor: Colors.white,
+            ),
+            title: Text('Tile n3'),
+            subtitle: Text('SlidableDrawerDelegate'),
+          ),
+        ),
+        secondaryActions: <Widget>[
+          IconSlideAction(
+            caption: 'More',
+            color: Colors.black45,
+            icon: Icons.more_horiz,
+            onTap: () => null,
+          ),
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () => null,
+          ),
+        ],
+      ),
     );
   }
 }
