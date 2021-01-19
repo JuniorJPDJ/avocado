@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:flutter/material.dart';
 
 class ListItem{
 
@@ -21,8 +20,9 @@ class AlarmRoute extends StatelessWidget {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add_alert),
-            tooltip: 'Add alert',
+            tooltip: 'Add alarm',
             onPressed: () {
+              // TODO: add alarm
               null;
             },
           ),

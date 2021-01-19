@@ -1,22 +1,74 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
+import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 import 'start_view.dart';
 
 
-class AvocadoStore {
-  List<GlucoseDataSource> sources;
+// <TEST DATA>
+class TmpDataSource extends GlucoseDataSource {
+  static int tmpId = 0;
 
-  AvocadoStore() {
-    sources = [];
+  int _id;
+  num calibrationFactor;
+  BehaviorSubject<TmpGlucoseData> dataStream;
+
+  TmpDataSource(){
+    _id = tmpId++;
+    dataStream = BehaviorSubject();
+    calibrationFactor = 10;
+
+    dataStream.addStream(
+        Stream.periodic(Duration(seconds: 5), (int i) =>
+            TmpGlucoseData((i + 5) % 20, this, DateTime.now(), calibrationFactor)
+        )
+    );
+  }
+
+  @override
+  void calibrate(num factor) {
+    calibrationFactor = factor;
+    dataStream.value.calibrate(factor);
+  }
+
+  @override
+  String get id => "TMP_DATA_SRC_$_id";
+
+  @override
+  Future<void> query() async {
+
   }
 }
 
-AvocadoStore store;
+class TmpGlucoseData extends GlucoseData {
+  TmpDataSource source;
+  DateTime time;
+  int rawValue;
+  num _calibrationFactor;
+
+  TmpGlucoseData(this.rawValue, this.source, this.time, this._calibrationFactor);
+
+  num get value => rawValue * _calibrationFactor;
+
+  @override
+  void calibrate(num factor) {
+    _calibrationFactor = factor;
+  }
+}
+// </TEST DATA>
+
+AvocadoState state;
 
 void main() {
-  store = AvocadoStore();
+  state = AvocadoState();
+
+  var source = TmpDataSource();
+  state.addDataSource(source);
+
   runApp(MaterialApp(
     title: 'Navigation Basics',
-    home: FirstRoute(),
+    home: FirstRoute(state, source),
   ));
 }

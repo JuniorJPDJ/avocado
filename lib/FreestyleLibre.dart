@@ -48,7 +48,7 @@ class FreestyleLibreGlucoseData implements GlucoseData {
     return (packet._data[_i * 6 + offset] | packet._data[_i * 6 + offset + 1] << 8) & 0x1FFF;
   }
 
-  double get value => rawValue * _calibrationFactor;
+  num get value => rawValue * _calibrationFactor;
 
   int get sensorTime =>
     max(0, historical ?

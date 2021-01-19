@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'AvocadoState.dart';
+import 'GlucoseData.dart';
 import 'ble_views.dart';
 import 'about_route_file.dart';
 import 'alarm_route_view.dart';
 import 'device_route_view.dart';
 
-
 class FirstRoute extends StatelessWidget {
+  final GlucoseDataSource dataSource;
+  final AvocadoState state;
+
+  FirstRoute(this.state, this.dataSource);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +28,12 @@ class FirstRoute extends StatelessWidget {
                   color: Colors.blueAccent[600],
                   width: 48.0,
                   height: 48.0,
-                  child: Text('glucoseLevel')),
+                  child: StreamBuilder<GlucoseData>(
+                    stream: state.glucoseData[dataSource].updatesStream
+                        .map((buf) => buf.last),
+                    builder: (context, snapshot) =>
+                        Text("${snapshot.data?.value ?? "N/A"}"),
+                  )),
             ],
           ),
         ),
@@ -38,13 +49,17 @@ class FirstRoute extends StatelessWidget {
         ),*/
         Container(
           child: AspectRatio(
-            aspectRatio: 3 / 2,
-            child: SlidingViewportOnSelection.withSampleData(),
+              aspectRatio: 3 / 2,
+              // child: GlucoseDataChart.fromBuffer(state.glucoseData[dataSource])
+              child: StreamBuilder<GlucoseDataBuffer>(
+                stream: state.glucoseData[dataSource].updatesStream,
+                initialData: state.glucoseData[dataSource],
+                builder: (context, snapshot) => GlucoseDataChart.fromBuffer(snapshot.data),
+              )
           ),
         ),
       ]),
       drawer: Drawer(
-        //child: GestureDetector(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -103,6 +118,7 @@ class FirstRoute extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.bar_chart),
               title: Text('About'),
+              /*
               onTap: () {
                 Navigator.push(
                   context,
@@ -111,6 +127,7 @@ class FirstRoute extends StatelessWidget {
                           SlidingViewportOnSelection.withSampleData()),
                 );
               },
+             */
             ),
           ],
         ),
@@ -119,106 +136,59 @@ class FirstRoute extends StatelessWidget {
   }
 }
 
-//// bar chart actions
-
-class SlidingViewportOnSelection extends StatelessWidget {
-  final List<charts.Series> seriesList;
+class GlucoseDataChart extends StatelessWidget {
+  final List<charts.Series<GlucoseData, DateTime>> seriesList;
 
   final bool animate;
 
-  SlidingViewportOnSelection(this.seriesList, {this.animate});
+  GlucoseDataChart(this.seriesList, {this.animate = false});
 
-  /// Creates a [BarChart] with sample data and no transition.
-  factory SlidingViewportOnSelection.withSampleData() {
-    return new SlidingViewportOnSelection(
-      _createSampleData(),
-      // Disable animations for image tests.
-      animate: false,
-    );
+  factory GlucoseDataChart.fromBuffer(GlucoseDataBuffer buff) {
+    return new GlucoseDataChart([
+      new charts.Series<GlucoseData, DateTime>(
+        id: 'Glucose',
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (GlucoseData d, _) => d.time,
+        measureFn: (GlucoseData d, _) => d.value,
+        data: buff,
+      )
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: ListView(children: <Widget>[
-          Container(
-              child: AspectRatio(
-                  aspectRatio: 3 / 2,
-                  child:
-                  charts.LineChart(seriesList, animate: animate, behaviors: [
-                    // Add the sliding viewport behavior to have the viewport center on the
-                    // domain that is currently selected.
-                    new charts.SlidingViewport(),
-                    new charts.PanBehavior(),
-                    new charts.RangeAnnotation([
-                      new charts.LineAnnotationSegment(
-                          20, charts.RangeAnnotationAxisType.measure,
-                          startLabel: '40', color: charts.MaterialPalette.gray.shade300),
-                      new charts.LineAnnotationSegment(
-                          65, charts.RangeAnnotationAxisType.measure,
-                          endLabel: '170', color: charts.MaterialPalette.gray.shade400),
-                    ]),
-
-                  ],
-                    defaultRenderer: new charts.LineRendererConfig(includePoints: true),
-                    domainAxis: new charts.NumericAxisSpec(
-                      viewport: new charts.NumericExtents(2018, 2022),
-                    ),
-                    primaryMeasureAxis: new charts.NumericAxisSpec(
-                      tickProviderSpec: new charts.StaticNumericTickProviderSpec(
-                        <charts.TickSpec<num>>[
-                          charts.TickSpec<num>(0),
-                          charts.TickSpec<num>(100),
-                        ],
-                      ),
-                    ),
-
-
-                  )
-                // Set an initial viewport to demonstrate the sliding viewport behavior on
-                // initial chart load.
-              ))
-        ]));
+    return charts.TimeSeriesChart(
+      seriesList,
+      animate: animate,
+      behaviors: [
+        // Add the sliding viewport behavior to have the viewport center on the
+        // domain that is currently selected.
+        new charts.SlidingViewport(),
+        new charts.PanBehavior(),
+        new charts.RangeAnnotation([
+          // TODO: tutaj alarmy?
+          new charts.LineAnnotationSegment(
+              40, charts.RangeAnnotationAxisType.measure,
+              startLabel: '40', color: charts.MaterialPalette.gray.shade300),
+          new charts.LineAnnotationSegment(
+              170, charts.RangeAnnotationAxisType.measure,
+              endLabel: '170', color: charts.MaterialPalette.gray.shade400),
+        ]),
+      ],
+      defaultRenderer: new charts.LineRendererConfig(includePoints: true),
+      /* domainAxis: new charts.DateTimeAxisSpec(
+        viewport: new charts.DateTimeExtents(
+          // TODO: odpowiedni zakres?
+            start: DateTime(2018), end: DateTime(2022)),
+      ), */
+      primaryMeasureAxis: new charts.NumericAxisSpec(
+        tickProviderSpec: new charts.StaticNumericTickProviderSpec(
+          <charts.TickSpec<num>>[
+            charts.TickSpec<num>(0),
+            charts.TickSpec<num>(100),
+          ],
+        ),
+      ),
+    );
   }
-
-  /// Create one series with sample hard coded data.
-  static List<charts.Series<OrdinalSales, int>> _createSampleData() {
-    final data = [
-      new OrdinalSales(2014, 5),
-      new OrdinalSales(2015, 25),
-      new OrdinalSales(2016, 100),
-      new OrdinalSales(2017, 75),
-      new OrdinalSales(2018, 33),
-      new OrdinalSales(2019, 80),
-      new OrdinalSales(2020, 21),
-      new OrdinalSales(2021, 77),
-      new OrdinalSales(2022, 8),
-      new OrdinalSales(2023, 12),
-      new OrdinalSales(2024, 42),
-      new OrdinalSales(2025, 70),
-      new OrdinalSales(2026, 77),
-      new OrdinalSales(2027, 55),
-      new OrdinalSales(2028, 19),
-      new OrdinalSales(2029, 66),
-      new OrdinalSales(2030, 27),
-    ];
-
-    return [
-      new charts.Series<OrdinalSales, int>(
-        id: 'Sales',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (OrdinalSales sales, _) => sales.year,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        data: data,
-      )
-    ];
-  }
-}
-
-/// Sample ordinal data type.
-class OrdinalSales {
-  final int year;
-  final int sales;
-
-  OrdinalSales(this.year, this.sales);
 }

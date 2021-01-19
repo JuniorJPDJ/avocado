@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'ble_views.dart';
-import 'main.dart';
 
 
 class DeviceRoute extends StatefulWidget {
@@ -40,10 +37,10 @@ class DeviceRouteState extends State<DeviceRoute> {
         Icon(Icons.image) // iconPic
     ),
   ];
-  ListView List_Criteria;
+  ListView listCriteria;
 
   Widget build(BuildContext context) {
-    List_Criteria = ListView(
+    listCriteria = ListView(
       children: [
         Padding(
           padding: EdgeInsets.all(10.0),
@@ -86,7 +83,7 @@ class DeviceRouteState extends State<DeviceRoute> {
           },
         ),
       ),
-      body: List_Criteria,
+      body: listCriteria,
     );
   }
 }

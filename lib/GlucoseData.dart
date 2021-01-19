@@ -1,5 +1,10 @@
+import 'dart:async';
+
+import 'package:circular_buffer/circular_buffer.dart';
+import 'package:rxdart/rxdart.dart';
+
 abstract class GlucoseData {
-  double get value;
+  num get value;
   DateTime get time;
   GlucoseDataSource get source;
   void calibrate(num factor);
@@ -7,7 +12,22 @@ abstract class GlucoseData {
 
 abstract class GlucoseDataSource {
   String get id;
-  Stream<GlucoseData> get dataStream;
+  BehaviorSubject<GlucoseData> get dataStream;
   void calibrate(num factor);
   Future<void> query();
+}
+
+class GlucoseDataBuffer extends CircularBuffer<GlucoseData>{
+  BehaviorSubject<GlucoseDataBuffer> updatesStream;
+
+  GlucoseDataBuffer([length = 24*60]) : super(length) {
+    // one measurement per minute, 24h
+    updatesStream = BehaviorSubject.seeded(this);
+  }
+
+  @override
+  void add(GlucoseData el) {
+    super.add(el);
+    updatesStream.add(this);
+  }
 }

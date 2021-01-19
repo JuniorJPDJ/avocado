@@ -27,8 +27,8 @@ class TomatoBridge implements GlucoseDataSource {
 
   Uint8List _rxBuf;
 
-  StreamController<TomatoBridgePacket> _rxPacketSC;
-  BehaviorSubject<FreestyleLibreGlucoseData> _glucoseDataSC;
+  BehaviorSubject<TomatoBridgePacket> rxPacketStream;
+  BehaviorSubject<FreestyleLibreGlucoseData> dataStream;
 
   num _calibrationFactor;
   Duration connTimeout;
@@ -38,16 +38,11 @@ class TomatoBridge implements GlucoseDataSource {
   TomatoBridge._create(BluetoothDevice device, this.connTimeout){
     _device = device;
     _rxBuf = Uint8List(0);
-    _rxPacketSC = StreamController.broadcast();
-    _glucoseDataSC = BehaviorSubject();
+    rxPacketStream = BehaviorSubject();
+    dataStream = BehaviorSubject();
 
     rxPacketStream.listen(_onPacket);
   }
-
-  @override
-  Stream<GlucoseData> get dataStream => _glucoseDataSC.stream;
-
-  Stream<TomatoBridgePacket> get rxPacketStream => _rxPacketSC.stream;
 
   @override
   String get id => _device.id.toString();
@@ -69,8 +64,8 @@ class TomatoBridge implements GlucoseDataSource {
         // uh, we can't ensure async write to be sent, but IT SHOULD WORK ANYWAY!
         return;
       } else if (data.length >= TOMATO_HEADER_LENGTH && data[0] == 0x28) {
-        var pkg_len = (data[1] << 8) + data[2];
-        log("Got initial packet with size: $pkg_len", name: "TomatoBridge");
+        var pkgLen = (data[1] << 8) + data[2];
+        log("Got initial packet with size: $pkgLen", name: "TomatoBridge");
         // starting accumulating packet data in buffer
         _rxBuf = data;
         // no need to append, this is initial packet
@@ -106,7 +101,7 @@ class TomatoBridge implements GlucoseDataSource {
     else
       packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH), _calibrationFactor, source: this);
 
-    _rxPacketSC.add(packet);
+    rxPacketStream.add(packet);
   }
 
   Future<void> _onPacket(TomatoBridgePacket packet) async {
@@ -117,13 +112,13 @@ class TomatoBridge implements GlucoseDataSource {
         List<FreestyleLibreGlucoseData> measurements = List.from(packet.packet.iterTrend());
 
         // cut already handled measurements
-        int index = measurements.indexOf(_glucoseDataSC.value);
-        if(_glucoseDataSC.value != null && index > 0)
+        int index = measurements.indexOf(dataStream.value);
+        if(dataStream.value != null && index > 0)
           measurements = measurements.sublist(0, index);
 
         // oldest first
         for(FreestyleLibreGlucoseData m in measurements.reversed)
-          _glucoseDataSC.add(m);
+          dataStream.add(m);
       }
     } else {
       await Future.delayed(Duration(seconds: 5));
@@ -143,20 +138,20 @@ class TomatoBridge implements GlucoseDataSource {
     self._service = (await device.discoverServices()).firstWhere(
         (srv) => srv.uuid.toString().toUpperCase() == NRF_SERVICE,
         orElse: (){
-          throw Exception("Not tomato? NRF service not found.");
+          throw StateError("Not tomato? NRF service not found.");
         }
     );
 
     self._rx = self._service.characteristics.firstWhere(
         (chr) => chr.uuid.toString().toUpperCase() == NRF_CHR_RX,
         orElse: (){
-          throw Exception("Not tomato? NRF RX characteristic not found");
+          throw StateError("Not tomato? NRF RX characteristic not found");
         }
     );
     self._tx = self._service.characteristics.firstWhere(
         (chr) => chr.uuid.toString().toUpperCase() == NRF_CHR_TX,
         orElse: (){
-          throw Exception("Not tomato? NRF TX characteristic not found");
+          throw StateError("Not tomato? NRF TX characteristic not found");
         }
     );
 
@@ -186,7 +181,7 @@ class TomatoBridge implements GlucoseDataSource {
 
   @override
   void calibrate(num factor) {
-    _glucoseDataSC.value.calibrate(factor);
+    dataStream.value.calibrate(factor);
     _calibrationFactor = factor;
   }
 
