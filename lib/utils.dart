@@ -44,11 +44,9 @@ String parsePacket(FreestyleLibrePacket packet){
   for(FreestyleLibreGlucoseData reading in packet.iterTrend())
     out.write(parseReading(reading));
 
-  /*
   out.write("\nHistory readings:\n");
   for(FreestyleLibreGlucoseData reading in packet.iterHistory())
-    out.write(parseReading(reading, calibrationMultipiler));
-  */
+    out.write(parseReading(reading));
 
   out.write("\n");
   return out.toString();
@@ -63,4 +61,9 @@ String parseBTPacket(TomatoBridgePacket packet){
   out.write(parsePacket(packet.packet));
 
   return out.toString();
+}
+
+abstract class StringSerializable {
+  String get typeName;
+  String get instanceData;
 }

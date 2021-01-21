@@ -14,7 +14,7 @@ enum TOMATO_STATE {
 }
 
 // https://github.com/NightscoutFoundation/xDrip/blob/2020.12.18/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java#L237
-class TomatoBridge implements GlucoseDataSource {
+class TomatoBridge with CalibrableGlucoseDataSourceMixin implements GlucoseDataSource, QuerableGlucoseDataSource {
   // https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.3.0%2Fble_sdk_app_nus_eval.html
   static const String NRF_SERVICE = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
   static const String NRF_CHR_TX = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
@@ -30,7 +30,7 @@ class TomatoBridge implements GlucoseDataSource {
   BehaviorSubject<TomatoBridgePacket> rxPacketStream;
   BehaviorSubject<FreestyleLibreGlucoseData> dataStream;
 
-  num _calibrationFactor;
+  num calibrationFactor;
   Duration connTimeout;
 
   TOMATO_STATE state;
@@ -43,9 +43,6 @@ class TomatoBridge implements GlucoseDataSource {
 
     rxPacketStream.listen(_onPacket);
   }
-
-  @override
-  String get id => _device.id.toString();
 
   void _onRX(List<int> _data) {
     // based on xDrip+ code
@@ -97,9 +94,9 @@ class TomatoBridge implements GlucoseDataSource {
     TomatoBridgePacket packet;
 
     if(_rxBuf.length >= TOMATO_MIN_PACKET_LENGTH + TOMATO_PATCH_SUFFIX_LENGTH)
-      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH + TOMATO_PATCH_SUFFIX_LENGTH), _calibrationFactor, source: this);
+      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH + TOMATO_PATCH_SUFFIX_LENGTH), calibrationFactor, source: this);
     else
-      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH), _calibrationFactor, source: this);
+      packet = TomatoBridgePacket(_rxBuf.sublist(0, TOMATO_MIN_PACKET_LENGTH), calibrationFactor, source: this);
 
     rxPacketStream.add(packet);
   }
@@ -108,7 +105,7 @@ class TomatoBridge implements GlucoseDataSource {
     log(parseBTPacket(packet));
 
     if(packet.packet.areChecksumsCorrect()){
-      if(_calibrationFactor != null){ // skip propagation of data if not calibrated
+      if(calibrationFactor != null){ // skip propagation of data if not calibrated
         List<FreestyleLibreGlucoseData> measurements = List.from(packet.packet.iterTrend());
 
         // cut already handled measurements
@@ -180,13 +177,22 @@ class TomatoBridge implements GlucoseDataSource {
   }
 
   @override
-  void calibrate(num factor) {
-    dataStream.value.calibrate(factor);
-    _calibrationFactor = factor;
-  }
-
-  @override
   Future<void> query() async {
     await initSensor();
   }
+
+  @override
+  String get instanceData => _device.id.toString();
+
+  @override
+  String get sourceId => typeName + instanceData;
+
+  @override
+  TomatoBridge.deserialize(String instanceData){
+    // TODO: implement TomatoBridge deserialization
+    throw UnimplementedError();
+  }
+
+  @override
+  final String typeName = "TomatoBridge";
 }

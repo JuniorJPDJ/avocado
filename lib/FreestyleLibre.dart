@@ -23,17 +23,13 @@ enum FreeStyleLibreSensorStatus {
   inFailure,
 }
 
-class FreestyleLibreGlucoseData implements GlucoseData {
+class FreestyleLibreGlucoseData with CalibrableGlucoseDataMixin implements GlucoseData {
   FreestyleLibrePacket packet;
   int index;
   bool historical;
-  num _calibrationFactor;
+  num calibrationFactor;
 
-  FreestyleLibreGlucoseData(this.packet, this.index, this._calibrationFactor, {this.historical = false});
-
-  void calibrate(num calibrationFactor){
-    this._calibrationFactor = calibrationFactor;
-  }
+  FreestyleLibreGlucoseData(this.packet, this.index, this.calibrationFactor, {this.historical = false});
 
   int get _i {
     // ring buffer index
@@ -47,8 +43,6 @@ class FreestyleLibreGlucoseData implements GlucoseData {
 
     return (packet._data[_i * 6 + offset] | packet._data[_i * 6 + offset + 1] << 8) & 0x1FFF;
   }
-
-  num get value => rawValue * _calibrationFactor;
 
   int get sensorTime =>
     max(0, historical ?
@@ -73,6 +67,18 @@ class FreestyleLibreGlucoseData implements GlucoseData {
   int get hashCode => packet?.serialNumber.hashCode ^
       sensorTime.hashCode ^
       rawValue.hashCode;
+
+  // workaround for deserialization to another class
+  @override
+  final String typeName = "GenericCalibrableGlucoseData";
+
+  @override
+  String get instanceData => "$rawValue|$calibrationFactor|${time.toString()}|${source?.sourceId ?? ""}";
+
+  @override
+  static GenericCalibrableGlucoseData deserialize(String instanceData){
+    return GenericCalibrableGlucoseData.deserialize(instanceData);
+  }
 }
 
 class FreestyleLibrePacket {
