@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter/material.dart';
+import 'alarm_edit_view.dart';
 
 class ListItem{
 
@@ -48,7 +50,12 @@ class AlarmRoute extends StatelessWidget {
             caption: 'More',
             color: Colors.black45,
             icon: Icons.more_horiz,
-            onTap: () => null,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditAlarm()),
+              );
+            },
           ),
           IconSlideAction(
             caption: 'Delete',

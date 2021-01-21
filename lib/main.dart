@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'AvocadoState.dart';
+import 'package:pretty_things/alarm_view.dart';
 import 'GlucoseData.dart';
 import 'start_view.dart';
 
@@ -69,6 +70,7 @@ void main() {
 
   runApp(MaterialApp(
     title: 'Navigation Basics',
+    //home: AlarmView(),
     home: FirstRoute(state, source),
   ));
 }
