@@ -114,13 +114,11 @@ class AvocadoState {
 
     for (var row in resp) {
       try {
-        var gd = deserializeGlucoseDataSource(
+        var src = deserializeGlucoseDataSource(
             row['type_name'],
             row['instance_data']
         );
-        if (gd != null) {
-
-        }
+        if (src != null) await addDataSource(src);
       } on Exception catch (e) {
         log("error deserializing glucose data source with"
             "type ${row['type_name']} and"

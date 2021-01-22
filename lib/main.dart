@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'AvocadoState.dart';
-import 'alarm_view.dart';
-import 'GlucoseTest.dart';
-import 'start_view.dart';
+import 'connect_source_view.dart';
+import 'data_source_view.dart';
 
-
-AvocadoState state;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  state = AvocadoState('avocado.sqlite');
+  AvocadoState state = AvocadoState('avocado.sqlite');
 
-  var source = TmpDataSource();
-  await state.addDataSource(source);
+  await state.loadSourcesFromDb();
 
   runApp(MaterialApp(
     title: 'Navigation Basics',
-    home: FirstRoute(state, source),
-    //home: AlarmView(),
+    //home: DataSourceView(state, source),
+    home: state.glucoseData.length > 0 ?
+      DataSourceView(state, state.glucoseDataSources.first)
+        :
+      ConnectSourceView(state),
   ));
 }

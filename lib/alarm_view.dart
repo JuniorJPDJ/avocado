@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'alarm_list_view.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:animate_icons/animate_icons.dart';
 
 
 class AlarmView extends StatelessWidget {

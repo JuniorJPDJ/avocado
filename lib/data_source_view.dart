@@ -4,11 +4,11 @@ import 'main_drawer.dart';
 import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 
-class FirstRoute extends StatelessWidget {
+class DataSourceView extends StatelessWidget {
   final GlucoseDataSource dataSource;
   final AvocadoState state;
 
-  FirstRoute(this.state, this.dataSource);
+  DataSourceView(this.state, this.dataSource);
 
   Widget _buildPopupDialog(BuildContext context) {
     return new AlertDialog(
@@ -98,7 +98,7 @@ class FirstRoute extends StatelessWidget {
               ],
             )),
       ]),
-      drawer: MainDrawer()
+      drawer: MainDrawer(state)
     );
   }
 }
