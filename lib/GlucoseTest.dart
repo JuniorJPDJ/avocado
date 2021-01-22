@@ -2,7 +2,7 @@ import 'package:rxdart/rxdart.dart';
 
 import 'GlucoseData.dart';
 
-class TmpDataSource with CalibrableGlucoseDataSourceMixin implements CalibrableGlucoseDataSource {
+class TmpDataSource with CalibrableGlucoseDataSourceMixin implements CalibrableGlucoseDataSource, BatteryPowered, Lifetimable {
   static int tmpId = 0;
 
   int _id;
@@ -43,4 +43,10 @@ class TmpDataSource with CalibrableGlucoseDataSourceMixin implements CalibrableG
 
     _setup();
   }
+
+  @override
+  num get batteryLevel => 69;
+
+  @override
+  Duration get remainingLifeTime => Duration(days: 3, hours: 2, minutes: 1);
 }

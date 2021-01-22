@@ -90,3 +90,13 @@ class GlucoseDataBuffer extends CircularBuffer<GlucoseData>{
     updatesStream.add(this);
   }
 }
+
+
+
+abstract class BatteryPowered {
+  num get batteryLevel;
+}
+
+abstract class Lifetimable {
+  Duration get remainingLifeTime;
+}

@@ -46,9 +46,9 @@ class FreestyleLibreGlucoseData with CalibrableGlucoseDataMixin implements Gluco
 
   int get sensorTime =>
     max(0, historical ?
-      ((packet.sensorAge - 3) ~/ 15 - index) * 15
+      ((packet._sensorAge - 3) ~/ 15 - index) * 15
         :
-      packet.sensorAge - index
+      packet._sensorAge - index
     );
 
   DateTime get time => packet.sensorFirstUse.add(Duration(minutes: sensorTime));
@@ -103,9 +103,13 @@ class FreestyleLibrePacket {
   int get _indexTrend => _data[26];
 
   // in minutes
-  int get sensorAge => _data[317] << 8 | _data[316];
+  int get _sensorAge => _data[317] << 8 | _data[316];
 
-  DateTime get sensorFirstUse => readDate.subtract(Duration(minutes: sensorAge));
+  Duration get sensorAge => Duration(minutes: _sensorAge);
+
+  DateTime get sensorFirstUse => readDate.subtract(sensorAge);
+
+  Duration get remainingSensorLifeTime => Duration(days: 14) - sensorAge;
 
   Iterable<FreestyleLibreGlucoseData> iterHistory() sync* {
     // loads history values (ring buffer, starting at _indexHistory. byte 124-315)
