@@ -169,7 +169,7 @@ class AvocadoState {
         whereArgs: [source.sourceId]
     );
 
-    Map<Alarm, int> ret = LinkedHashMap();
+    Map<Alarm, int> ret = LinkedHashMap<Alarm, int>();
 
     for (var row in resp) {
       try {
@@ -185,9 +185,9 @@ class AvocadoState {
             "instance data ${row['instance_data']}: $e"
         );
       }
-
-      return ret;
     }
+
+    return ret;
   }
 
   Future<void> saveDataToDb(GlucoseData data) async {
@@ -213,7 +213,7 @@ class AvocadoState {
 
     source.dataStream.listen((data) => addMeasurement(source, data));
 
-    // if null - not inserted, exists, need to load data
+    // if null - not inserted, already exists, need to load data
     if(await db.insert('glucose_data_source', {
       'id': source.sourceId,
       'type_name': source.typeName,
@@ -221,10 +221,10 @@ class AvocadoState {
     }, conflictAlgorithm: ConflictAlgorithm.ignore) == null) {
       buf.addAll(await loadDataFromDb(source));
 
-      var alarms_ = await loadAlarmsFromDb(source);
-      alarms[source] = alarms_.keys.toList();
+      Map<Alarm, int> dbAlarms = await loadAlarmsFromDb(source);
+      alarms[source] = dbAlarms.keys.toList();
       alarms[source].forEach((alarm) => alarm.updatesStream.listen(_handleAlarmUpdate));
-      alarmIds.addAll(alarms_);
+      alarmIds.addAll(dbAlarms);
     }
 
     sourcesUpdate.add(glucoseDataSources);
