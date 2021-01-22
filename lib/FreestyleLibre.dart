@@ -75,7 +75,6 @@ class FreestyleLibreGlucoseData with CalibrableGlucoseDataMixin implements Gluco
   @override
   String get instanceData => "$rawValue|$calibrationFactor|${time.toString()}|${source?.sourceId ?? ""}";
 
-  @override
   static GenericCalibrableGlucoseData deserialize(CalibrableGlucoseDataSource src, String instanceData){
     return GenericCalibrableGlucoseData.deserialize(src, instanceData);
   }

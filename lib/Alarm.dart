@@ -61,6 +61,12 @@ class Alarm implements StringSerializable {
 
   factory Alarm.deserialize(GlucoseDataSource src, String instanceData){
     var data = instanceData.split("|");
-    return Alarm(src, data[1], num.parse(data[2]), data[3] == "true", data[4] == "true", DateTime.parse(data[5]));
+    return Alarm(
+        src, data[1],
+        num.parse(data[2]),
+        data[3] == "true",
+        data[4] == "true",
+        data[5] == "null" ? null : DateTime.parse(data[5])
+    );
   }
 }

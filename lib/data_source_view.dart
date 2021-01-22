@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'alarm_list_view.dart';
 import 'main_drawer.dart';
 import 'AvocadoState.dart';
 import 'GlucoseData.dart';
+
+// TODO: delete source
 
 class DataSourceView extends StatelessWidget {
   final GlucoseDataSource dataSource;
@@ -40,14 +43,25 @@ class DataSourceView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Avocado care'),
+        title: Text('${dataSource.sourceId}: Overview'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.auto_fix_high),
+            tooltip: "Calibration",
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) => _buildPopupDialog(context),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.alarm_sharp),
+            tooltip: 'Alarms',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AlarmListView(state, dataSource)),
               );
             },
           )

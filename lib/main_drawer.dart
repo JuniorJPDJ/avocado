@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pretty_things/AvocadoState.dart';
 
+import 'AvocadoState.dart';
 import 'connect_source_view.dart';
 import 'about_view.dart';
-import 'alarm_list_view.dart';
 import 'device_route_view.dart';
 import 'data_source_view.dart';
 
@@ -52,25 +51,15 @@ class MainDrawer extends StatelessWidget {
               },
             ),
             ...state.glucoseDataSources.map((source) => ListTile(
-              leading: Icon(Icons.speaker_phone_outlined),
-              title: Text(source.sourceId),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => DataSourceView(state, source))
-                );
-              },
-            )
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm_sharp),
-              title: Text('Alarms'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AlarmListView()),
-                );
-              },
+                leading: Icon(Icons.speaker_phone_outlined),
+                title: Text(source.sourceId),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DataSourceView(state, source))
+                  );
+                },
+              )
             ),
             ListTile(
               leading: Icon(Icons.settings),
