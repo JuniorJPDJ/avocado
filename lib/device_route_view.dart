@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class DeviceRoute extends StatefulWidget {
   DeviceRouteState createState() => DeviceRouteState();
 }
@@ -35,7 +34,7 @@ class DeviceRouteState extends State<DeviceRoute> {
               Radio(value: null, groupValue: null, onChanged: null)
             ])), // body
         Icon(Icons.image) // iconPic
-    ),
+        ),
   ];
   ListView listCriteria;
 

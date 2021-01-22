@@ -1,10 +1,6 @@
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:pretty_things/qr_share_view.dart';
-import 'alarm_list_view.dart';
-import 'main_drawer.dart';
 import 'package:flutter/material.dart';
-
-
+import 'package:pretty_things/qr_share_view.dart';
 import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 import 'alarm_list_view.dart';
@@ -75,21 +71,20 @@ class DataSourceView extends StatelessWidget {
         ),
         body: ListView(children: <Widget>[
           Container(
-                    margin: const EdgeInsets.all(10.0),
-                    color: Colors.blueAccent[600],
-                    width: 48.0,
-                    height: 48.0,
-                    child: StreamBuilder<GlucoseData>(
-                      stream: state.glucoseData[dataSource].updatesStream
-                          .map((buf) => buf.last),
-                      builder: (context, snapshot) =>
-                      Center(
-                          child: Text("${snapshot.data?.value ?? "N/A"}",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                      ),
-                    ),
-
+            margin: const EdgeInsets.all(10.0),
+            color: Colors.blueAccent[600],
+            width: 48.0,
+            height: 48.0,
+            child: StreamBuilder<GlucoseData>(
+              stream: state.glucoseData[dataSource].updatesStream
+                  .map((buf) => buf.last),
+              builder: (context, snapshot) => Center(
+                child: Text(
+                  "${snapshot.data?.value ?? "N/A"}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              ),
+            ),
           ),
           Container(
             child: AspectRatio(
@@ -108,23 +103,27 @@ class DataSourceView extends StatelessWidget {
                 children: <Widget>[
                   if (dataSource is BatteryPowered) ...[
                     Icon(Icons.battery_std, color: Colors.blue),
-                    Text('Battery: ${(dataSource as BatteryPowered).batteryLevel}')
+                    Text(
+                        'Battery: ${(dataSource as BatteryPowered).batteryLevel}')
                   ],
                   if (dataSource is Lifetimable) ...[
                     Icon(Icons.calendar_today, color: Colors.blue),
-                    Text('Sensor remaining lifetime: ${(dataSource as Lifetimable).remainingLifeTime}')
+                    Text(
+                        'Sensor remaining lifetime: ${(dataSource as Lifetimable).remainingLifeTime}')
                   ]
                 ],
               )),
-          Container(margin: const EdgeInsets.only(right:100, left: 100, top: 50), child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => QRShareView()),
-              );
-            },
-            child: Text('Share your data'),
-          ))
+          Container(
+              margin: const EdgeInsets.only(right: 100, left: 100, top: 50),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => QRShareView()),
+                  );
+                },
+                child: Text('Share your data'),
+              ))
         ]),
         drawer: MainDrawer(state));
   }

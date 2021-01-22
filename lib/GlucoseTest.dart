@@ -2,7 +2,9 @@ import 'package:rxdart/rxdart.dart';
 
 import 'GlucoseData.dart';
 
-class TmpDataSource with CalibrableGlucoseDataSourceMixin implements CalibrableGlucoseDataSource, BatteryPowered, Lifetimable {
+class TmpDataSource
+    with CalibrableGlucoseDataSourceMixin
+    implements CalibrableGlucoseDataSource, BatteryPowered, Lifetimable {
   static int tmpId = 0;
 
   int _id;
@@ -10,19 +12,18 @@ class TmpDataSource with CalibrableGlucoseDataSourceMixin implements CalibrableG
   num calibrationFactor;
   BehaviorSubject<GenericCalibrableGlucoseData> dataStream;
 
-  TmpDataSource([this.i = 5, this.calibrationFactor = 10]){
+  TmpDataSource([this.i = 5, this.calibrationFactor = 10]) {
     _setup();
   }
 
-  void _setup(){
+  void _setup() {
     _id = tmpId++;
     dataStream = BehaviorSubject();
 
-    dataStream.addStream(
-        Stream.periodic(Duration(seconds: 5), (_) =>
-            GenericCalibrableGlucoseData(i++ % 20, calibrationFactor, DateTime.now(), this)
-        )
-    );
+    dataStream.addStream(Stream.periodic(
+        Duration(seconds: 5),
+        (_) => GenericCalibrableGlucoseData(
+            i++ % 20, calibrationFactor, DateTime.now(), this)));
   }
 
   @override
@@ -35,7 +36,7 @@ class TmpDataSource with CalibrableGlucoseDataSourceMixin implements CalibrableG
   final String typeName = "TmpDataSource";
 
   @override
-  TmpDataSource.deserialize(String instanceData){
+  TmpDataSource.deserialize(String instanceData) {
     var data = instanceData.split("|");
 
     i = int.parse(data[0]);

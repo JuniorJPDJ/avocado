@@ -5,24 +5,27 @@ import 'package:rxdart/rxdart.dart';
 
 import 'utils.dart';
 
-
 abstract class GlucoseData implements StringSerializable {
   num get value;
+
   DateTime get time;
+
   GlucoseDataSource get source;
 }
 
 abstract class CalibrableGlucoseData implements GlucoseData {
   num get rawValue;
+
   void calibrate(num factor);
 }
 
 abstract class CalibrableGlucoseDataMixin implements CalibrableGlucoseData {
   num calibrationFactor;
+
   num get rawValue;
 
   num get value => rawValue * calibrationFactor;
-  
+
   void calibrate(num factor) {
     calibrationFactor = factor;
   }
@@ -34,24 +37,28 @@ class GenericCalibrableGlucoseData with CalibrableGlucoseDataMixin {
   DateTime time;
   num calibrationFactor;
 
-  GenericCalibrableGlucoseData(this.rawValue, this.calibrationFactor, this.time, this.source);
+  GenericCalibrableGlucoseData(
+      this.rawValue, this.calibrationFactor, this.time, this.source);
 
   @override
-  String get instanceData => "$rawValue|$calibrationFactor|${time.toString()}|${source.sourceId}";
+  String get instanceData =>
+      "$rawValue|$calibrationFactor|${time.toString()}|${source.sourceId}";
 
   @override
-  factory GenericCalibrableGlucoseData.deserialize(CalibrableGlucoseDataSource src, String instanceData){
+  factory GenericCalibrableGlucoseData.deserialize(
+      CalibrableGlucoseDataSource src, String instanceData) {
     var data = instanceData.split("|");
-    return GenericCalibrableGlucoseData(num.parse(data[0]), num.parse(data[1]), DateTime.parse(data[2]), src);
+    return GenericCalibrableGlucoseData(
+        num.parse(data[0]), num.parse(data[1]), DateTime.parse(data[2]), src);
   }
 
   @override
   final String typeName = "GenericCalibrableGlucoseData";
 }
 
-
 abstract class GlucoseDataSource implements StringSerializable {
   BehaviorSubject<GlucoseData> get dataStream;
+
   String get sourceId;
 }
 
@@ -65,7 +72,8 @@ abstract class CalibrableGlucoseDataSource implements GlucoseDataSource {
   void calibrate(num factor);
 }
 
-abstract class CalibrableGlucoseDataSourceMixin implements CalibrableGlucoseDataSource {
+abstract class CalibrableGlucoseDataSourceMixin
+    implements CalibrableGlucoseDataSource {
   num calibrationFactor;
 
   void calibrate(num factor) {
@@ -74,12 +82,10 @@ abstract class CalibrableGlucoseDataSourceMixin implements CalibrableGlucoseData
   }
 }
 
-
-
-class GlucoseDataBuffer extends CircularBuffer<GlucoseData>{
+class GlucoseDataBuffer extends CircularBuffer<GlucoseData> {
   BehaviorSubject<GlucoseDataBuffer> updatesStream;
 
-  GlucoseDataBuffer([length = 24*60]) : super(length) {
+  GlucoseDataBuffer([length = 24 * 60]) : super(length) {
     // one measurement per minute, 24h
     updatesStream = BehaviorSubject.seeded(this);
   }
@@ -90,8 +96,6 @@ class GlucoseDataBuffer extends CircularBuffer<GlucoseData>{
     updatesStream.add(this);
   }
 }
-
-
 
 abstract class BatteryPowered {
   num get batteryLevel;

@@ -95,9 +95,11 @@ class AlarmEditViewState extends State<AlarmEditView> {
           Container(
             child: StreamBuilder<void>(
               stream: Stream.periodic(Duration(milliseconds: 200)),
-              builder: (context, snapshot) => snoozedTo == null || DateTime.now().isAfter(snoozedTo)
+              builder: (context, snapshot) => snoozedTo == null ||
+                      DateTime.now().isAfter(snoozedTo)
                   ? Text('Not snoozed!')
-                  : Text('Snoozed for: ${snoozedTo.difference(DateTime.now())}'),
+                  : Text(
+                      'Snoozed for: ${snoozedTo.difference(DateTime.now())}'),
             ),
           ),
           Container(
@@ -117,20 +119,16 @@ class AlarmEditViewState extends State<AlarmEditView> {
                 child: new Text('disable\nsnooze'))
           ]))),
           Container(
-            child: ToggleButtons(
-              onPressed: null,
-              children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('Higher'),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('Lower'),
-              ),
-              ]
-            )
-          )
+              child: ToggleButtons(onPressed: null, children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('Higher'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('Lower'),
+            ),
+          ]))
         ]));
   }
 

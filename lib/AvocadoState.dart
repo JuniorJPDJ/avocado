@@ -9,10 +9,11 @@ import 'GlucoseData.dart';
 import 'GlucoseTest.dart';
 import 'TomatoBridge.dart';
 
-GlucoseDataSource deserializeGlucoseDataSource(String typeName, String instanceData){
+GlucoseDataSource deserializeGlucoseDataSource(
+    String typeName, String instanceData) {
   // Dart, you suck.
   // Yes. I really can't override static/factory/constructor and have to hardcode that.
-  switch(typeName){
+  switch (typeName) {
     case "TmpDataSource":
       return TmpDataSource.deserialize(instanceData);
     case "TomatoBridge":
@@ -22,8 +23,9 @@ GlucoseDataSource deserializeGlucoseDataSource(String typeName, String instanceD
   }
 }
 
-GlucoseData deserializeGlucoseData(GlucoseDataSource src, String typeName, String instanceData){
-  switch(typeName){
+GlucoseData deserializeGlucoseData(
+    GlucoseDataSource src, String typeName, String instanceData) {
+  switch (typeName) {
     case "GenericCalibrableGlucoseData":
       return GenericCalibrableGlucoseData.deserialize(src, instanceData);
     default:
@@ -31,8 +33,9 @@ GlucoseData deserializeGlucoseData(GlucoseDataSource src, String typeName, Strin
   }
 }
 
-Alarm deserializeAlarm(GlucoseDataSource src, String typeName, String instanceData){
-  switch(typeName){
+Alarm deserializeAlarm(
+    GlucoseDataSource src, String typeName, String instanceData) {
+  switch (typeName) {
     case "Alarm":
       return Alarm.deserialize(src, instanceData);
     default:
@@ -63,16 +66,15 @@ class AvocadoState {
   }
 
   Future<void> _openDb() async {
-    db ??= await openDatabase(_dbName,
-      onCreate: (db, version) async {
-        await db.execute('''
+    db ??= await openDatabase(_dbName, onCreate: (db, version) async {
+      await db.execute('''
             CREATE TABLE glucose_data_source (
               id STRING PRIMARY KEY,
               type_name STRING NOT NULL,
               instance_data STRING NOT NULL
             );
             ''');
-        await db.execute('''
+      await db.execute('''
             CREATE TABLE glucose_data (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               source_id STRING NOT NULL,
@@ -86,7 +88,7 @@ class AvocadoState {
             );
             ''');
 
-        await db.execute('''
+      await db.execute('''
           CREATE TABLE alarm (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source_id STRING NOT NULL,
@@ -98,32 +100,27 @@ class AvocadoState {
               ON DELETE CASCADE
           )
         ''');
-      },
-      onConfigure: (db) async {
-        await db.execute('PRAGMA foreign_keys = ON;');
-      },
-      version: 1
-    );
+    }, onConfigure: (db) async {
+      await db.execute('PRAGMA foreign_keys = ON;');
+    }, version: 1);
   }
 
   Future<void> loadSourcesFromDb() async {
     await _openDb();
-    var resp = await db.query("glucose_data_source",
-        columns: ["type_name", "instance_data"],
+    var resp = await db.query(
+      "glucose_data_source",
+      columns: ["type_name", "instance_data"],
     );
 
     for (var row in resp) {
       try {
         var src = deserializeGlucoseDataSource(
-            row['type_name'],
-            row['instance_data']
-        );
+            row['type_name'], row['instance_data']);
         if (src != null) await addDataSource(src);
       } on Exception catch (e) {
         log("error deserializing glucose data source with"
             "type ${row['type_name']} and"
-            "instance data ${row['instance_data']}: $e"
-        );
+            "instance data ${row['instance_data']}: $e");
       }
     }
   }
@@ -135,25 +132,21 @@ class AvocadoState {
         where: "source_id = ? AND time >= ?",
         whereArgs: [
           source.sourceId,
-          DateTime.now().subtract(Duration(hours: 24)).millisecondsSinceEpoch~/1000
+          DateTime.now().subtract(Duration(hours: 24)).millisecondsSinceEpoch ~/
+              1000
         ],
-        orderBy: "time"
-    );
+        orderBy: "time");
 
     return (() sync* {
       for (var row in resp) {
         try {
           var gd = deserializeGlucoseData(
-              source,
-              row['type_name'],
-              row['instance_data']
-          );
+              source, row['type_name'], row['instance_data']);
           if (gd != null) yield gd;
         } on Exception catch (e) {
           log("error deserializing glucose data with"
               "type ${row['type_name']} and"
-              "instance data ${row['instance_data']}: $e"
-          );
+              "instance data ${row['instance_data']}: $e");
         }
       }
     })();
@@ -164,24 +157,19 @@ class AvocadoState {
     var resp = await db.query("alarm",
         columns: ["id", "source_id", "type_name", "instance_data"],
         where: "source_id = ?",
-        whereArgs: [source.sourceId]
-    );
+        whereArgs: [source.sourceId]);
 
     Map<Alarm, int> ret = LinkedHashMap<Alarm, int>();
 
     for (var row in resp) {
       try {
-        var gd = deserializeAlarm(
-            source,
-            row['type_name'],
-            row['instance_data']
-        );
+        var gd =
+            deserializeAlarm(source, row['type_name'], row['instance_data']);
         if (gd != null) ret[gd] = row['id'];
       } on Exception catch (e) {
         log("error deserializing alarm with"
             "type ${row['type_name']} and"
-            "instance data ${row['instance_data']}: $e"
-        );
+            "instance data ${row['instance_data']}: $e");
       }
     }
 
@@ -193,7 +181,7 @@ class AvocadoState {
 
     var map = {
       "source_id": data.source.sourceId,
-      "time": data.time.millisecondsSinceEpoch~/1000,
+      "time": data.time.millisecondsSinceEpoch ~/ 1000,
       "type_name": data.typeName,
       "instance_data": data.instanceData
     };
@@ -204,7 +192,8 @@ class AvocadoState {
 
   Future<void> addDataSource(GlucoseDataSource source) async {
     await _openDb();
-    if(glucoseData.containsKey(source)) throw StateError("Data source is already registered");
+    if (glucoseData.containsKey(source))
+      throw StateError("Data source is already registered");
 
     sourceIds[source.sourceId] = source;
     var buf = glucoseData[source] = GlucoseDataBuffer();
@@ -212,18 +201,24 @@ class AvocadoState {
     source.dataStream.listen((data) => addMeasurement(source, data));
 
     // if null - not inserted, already exists, need to load data
-    if(await db.insert('glucose_data_source', {
-      'id': source.sourceId,
-      'type_name': source.typeName,
-      'instance_data': source.instanceData
-    }, conflictAlgorithm: ConflictAlgorithm.ignore) == null) {
+    if (await db.insert(
+            'glucose_data_source',
+            {
+              'id': source.sourceId,
+              'type_name': source.typeName,
+              'instance_data': source.instanceData
+            },
+            conflictAlgorithm: ConflictAlgorithm.ignore) ==
+        null) {
       buf.addAll(await loadDataFromDb(source));
 
       Map<Alarm, int> dbAlarms = await loadAlarmsFromDb(source);
       alarms[source] = dbAlarms.keys.toList();
-      alarms[source].forEach((alarm) => alarm.updatesStream.listen(_handleAlarmUpdate));
+      alarms[source]
+          .forEach((alarm) => alarm.updatesStream.listen(_handleAlarmUpdate));
       alarmIds.addAll(dbAlarms);
-    }
+    } else
+      alarms[source] = [];
 
     sourcesUpdate.add(glucoseDataSources);
   }
@@ -231,7 +226,8 @@ class AvocadoState {
   Future<void> addAlarm(Alarm alarm) async {
     await _openDb();
 
-    if(alarmIds.containsKey(alarm)) throw StateError("Alarm is already registered");
+    if (alarmIds.containsKey(alarm))
+      throw StateError("Alarm is already registered");
 
     int id = await db.insert('alarm', {
       'source_id': alarm.source.sourceId,
@@ -248,11 +244,8 @@ class AvocadoState {
   void _handleAlarmUpdate(Alarm alarm) async {
     await _openDb();
 
-    await db.update('alarm', {
-          'instance_data': alarm.instanceData
-        },
-        where: "id = ?",
-        whereArgs: [alarmIds[alarm]]);
+    await db.update('alarm', {'instance_data': alarm.instanceData},
+        where: "id = ?", whereArgs: [alarmIds[alarm]]);
   }
 
   Iterable<GlucoseDataSource> get glucoseDataSources => glucoseData.keys;
@@ -263,5 +256,5 @@ class AvocadoState {
     glucoseData[source].add(data);
   }
 
-  // TODO: try to load data sources from DB
+// TODO: try to load data sources from DB
 }
