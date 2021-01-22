@@ -6,7 +6,6 @@ import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 
 // TODO: handle back button and ask if really want to cancel edit
-// TODO: high/low mode selection
 // TODO: save changes
 
 class AlarmEditView extends StatefulWidget {
@@ -119,16 +118,19 @@ class AlarmEditViewState extends State<AlarmEditView> {
                 child: new Text('disable\nsnooze'))
           ]))),
           Container(
-              child: ToggleButtons(onPressed: null, children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Higher'),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Lower'),
-            ),
-          ]))
+              child: ToggleButtons(
+                  onPressed: (i) => setState(() => greater = i == 0),
+                  isSelected: greater ? [true, false] : [false, true],
+                  children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Higher'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Lower'),
+                ),
+              ]))
         ]));
   }
 
