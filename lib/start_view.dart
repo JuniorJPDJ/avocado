@@ -42,13 +42,14 @@ class FirstRoute extends StatelessWidget {
       appBar: AppBar(
         title: Text('Avocado care'),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.auto_fix_high),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => _buildPopupDialog(context),
-                );
-              },
+          IconButton(
+            icon: Icon(Icons.auto_fix_high),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => _buildPopupDialog(context),
+              );
+            },
           )
         ],
       ),
@@ -56,18 +57,23 @@ class FirstRoute extends StatelessWidget {
         Container(
           child: Stack(
             children: <Widget>[
-              Container(
-                  margin: const EdgeInsets.all(10.0),
-                  color: Colors.blueAccent[600],
-                  width: 48.0,
-                  height: 48.0,
+              Center(
+              child: Container(
+                margin: const EdgeInsets.all(10.0),
+                color: Colors.blueAccent[600],
+                width: 48.0,
+                height: 48.0,
                   child: StreamBuilder<GlucoseData>(
                     stream: state.glucoseData[dataSource].updatesStream
                         .map((buf) => buf.last),
-                    builder: (context, snapshot) =>
-                        Text("${snapshot.data?.value ?? "N/A"}"),
-                  )),
-            ],
+                    builder: (context, snapshot) => Row(
+                        children: <Widget>[
+                          Text("${snapshot.data?.value ?? "N/A"}")
+                        ],
+                  ),
+                ),
+              ),
+              ),],
           ),
         ),
         Container(
@@ -77,19 +83,20 @@ class FirstRoute extends StatelessWidget {
               child: StreamBuilder<GlucoseDataBuffer>(
                 stream: state.glucoseData[dataSource].updatesStream,
                 initialData: state.glucoseData[dataSource],
-                builder: (context, snapshot) => GlucoseDataChart.fromBuffer(snapshot.data),
-              )
-          ),
+                builder: (context, snapshot) =>
+                    GlucoseDataChart.fromBuffer(snapshot.data),
+              )),
         ),
         Container(
-          child: Row(
-            children: <Widget>[
-              Icon(Icons.battery_std),
-              Text('Miao battery')
-            ],
-          )
-
-        ),
+            margin: const EdgeInsets.only(top: 50.0, left: 20),
+            child: Row(
+              children: <Widget>[
+                Icon(Icons.battery_std, color: Colors.blue),
+                Text('Miao battery'),
+                Icon(Icons.calendar_today, color: Colors.blue),
+                Text('Libra life')
+              ],
+            )),
       ]),
       drawer: MainDrawer()
     );
@@ -135,11 +142,11 @@ class GlucoseDataChart extends StatelessWidget {
         ]),
       ],
       defaultRenderer: new charts.LineRendererConfig(includePoints: true),
-      /* domainAxis: new charts.DateTimeAxisSpec(
+      domainAxis: new charts.DateTimeAxisSpec(
         viewport: new charts.DateTimeExtents(
           // TODO: odpowiedni zakres?
-            start: DateTime(2018), end: DateTime(2022)),
-      ), */
+            start: DateTime.now().subtract(Duration(minutes: 5)), end: DateTime.now().add(Duration(minutes: 1))),
+      ),
       primaryMeasureAxis: new charts.NumericAxisSpec(
         tickProviderSpec: new charts.StaticNumericTickProviderSpec(
           <charts.TickSpec<num>>[

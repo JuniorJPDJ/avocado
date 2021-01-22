@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'connect_source_view.dart';
 import 'about_view.dart';
 import 'alarm_list_view.dart';
-import 'bt_views.dart';
 import 'device_route_view.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -35,12 +35,12 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.bluetooth_connected),
-            title: Text('Bluetooth Settings'),
+            leading: Icon(Icons.connect_without_contact),
+            title: Text('Connect new data source'),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => BluetoothMainView()),
+                MaterialPageRoute(builder: (context) => ConnectSourceView()),
               );
             },
           ),
