@@ -43,11 +43,17 @@ class AlarmRoute extends StatelessWidget {
             ),
             title: Text('Tile n3'),
             subtitle: Text('SlidableDrawerDelegate'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditAlarm()),
+              );
+            }
           ),
         ),
         secondaryActions: <Widget>[
           IconSlideAction(
-            caption: 'More',
+            caption: 'Edit',
             color: Colors.black45,
             icon: Icons.more_horiz,
             onTap: () {

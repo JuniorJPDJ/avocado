@@ -13,11 +13,47 @@ class FirstRoute extends StatelessWidget {
 
   FirstRoute(this.state, this.dataSource);
 
+  Widget _buildPopupDialog(BuildContext context) {
+    return new AlertDialog(
+      title: const Text('Please calibrate'),
+      content: new Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text("Blood sugar level"),
+          TextField(
+            decoration: InputDecoration(hintText: 'mg/dL'),
+            keyboardType: TextInputType.number,
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        new FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('First Route'),
+        title: Text('Avocado care'),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.auto_fix_high),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => _buildPopupDialog(context),
+                );
+              },
+          )
+        ],
       ),
       body: ListView(children: <Widget>[
         Container(
@@ -37,16 +73,6 @@ class FirstRoute extends StatelessWidget {
             ],
           ),
         ),
-
-        /*child: ElevatedButton(
-          child: Text('Open route'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SecondRoute()),
-            );
-          },
-        ),*/
         Container(
           child: AspectRatio(
               aspectRatio: 3 / 2,
@@ -57,6 +83,15 @@ class FirstRoute extends StatelessWidget {
                 builder: (context, snapshot) => GlucoseDataChart.fromBuffer(snapshot.data),
               )
           ),
+        ),
+        Container(
+          child: Row(
+            children: <Widget>[
+              Icon(Icons.battery_std),
+              Text('Miao battery')
+            ],
+          )
+
         ),
       ]),
       drawer: Drawer(
@@ -166,13 +201,12 @@ class GlucoseDataChart extends StatelessWidget {
         new charts.SlidingViewport(),
         new charts.PanBehavior(),
         new charts.RangeAnnotation([
-          // TODO: tutaj alarmy?
           new charts.LineAnnotationSegment(
-              40, charts.RangeAnnotationAxisType.measure,
-              startLabel: '40', color: charts.MaterialPalette.gray.shade300),
+              70, charts.RangeAnnotationAxisType.measure,
+              startLabel: '70', color: charts.MaterialPalette.gray.shade300),
           new charts.LineAnnotationSegment(
-              170, charts.RangeAnnotationAxisType.measure,
-              endLabel: '170', color: charts.MaterialPalette.gray.shade400),
+              140, charts.RangeAnnotationAxisType.measure,
+              endLabel: '140', color: charts.MaterialPalette.gray.shade400),
         ]),
       ],
       defaultRenderer: new charts.LineRendererConfig(includePoints: true),
