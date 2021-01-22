@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'AvocadoState.dart';
 import 'main_drawer.dart';
-import 'qr_view.dart';
+import 'qr_reader_view.dart';
 import 'bt_views.dart';
 import 'GlucoseTest.dart';
 
@@ -34,7 +34,7 @@ class ConnectSourceView extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => QRView()),
+                      MaterialPageRoute(builder: (context) => QRReaderView()),
                     );
                   },
                 ),

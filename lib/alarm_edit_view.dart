@@ -116,6 +116,21 @@ class AlarmEditViewState extends State<AlarmEditView> {
                 onPressed: () => setState(() => snoozedTo = null),
                 child: new Text('disable\nsnooze'))
           ]))),
+          Container(
+            child: ToggleButtons(
+              onPressed: null,
+              children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text('Higher'),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text('Lower'),
+              ),
+              ]
+            )
+          )
         ]));
   }
 
