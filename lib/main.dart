@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'AvocadoState.dart';
-import 'package:pretty_things/alarm_view.dart';
+import 'alarm_view.dart';
 import 'GlucoseTest.dart';
 import 'start_view.dart';
 

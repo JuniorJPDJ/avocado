@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'AvocadoState.dart';
 import 'GlucoseData.dart';
-import 'ble_views.dart';
-import 'about_route_file.dart';
-import 'alarm_route_view.dart';
+import 'bt_views.dart';
+import 'about_view.dart';
+import 'alarm_list_view.dart';
 import 'device_route_view.dart';
 
 class FirstRoute extends StatelessWidget {
@@ -126,7 +126,7 @@ class FirstRoute extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FlutterBlueRoute()),
+                  MaterialPageRoute(builder: (context) => BluetoothMainView()),
                 );
               },
             ),
@@ -136,7 +136,7 @@ class FirstRoute extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AlarmRoute()),
+                  MaterialPageRoute(builder: (context) => AlarmListView()),
                 );
               },
             ),
@@ -146,7 +146,7 @@ class FirstRoute extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AboutRoute()),
+                  MaterialPageRoute(builder: (context) => AboutView()),
                 );
               },
             ),

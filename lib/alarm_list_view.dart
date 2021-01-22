@@ -3,11 +3,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
 import 'alarm_edit_view.dart';
 
-class ListItem{
 
-}
-
-class AlarmRoute extends StatelessWidget {
+class AlarmListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +43,7 @@ class AlarmRoute extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditAlarm()),
+                MaterialPageRoute(builder: (context) => AlarmEditView()),
               );
             }
           ),
@@ -59,7 +56,7 @@ class AlarmRoute extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditAlarm()),
+                MaterialPageRoute(builder: (context) => AlarmEditView()),
               );
             },
           ),

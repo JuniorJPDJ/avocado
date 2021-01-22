@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class EditAlarm extends StatelessWidget {
+class AlarmEditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

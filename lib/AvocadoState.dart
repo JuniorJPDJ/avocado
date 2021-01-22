@@ -1,15 +1,15 @@
 import 'dart:collection';
 import 'dart:developer';
 
-
 import 'package:rxdart/rxdart.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'Alarm.dart';
 import 'GlucoseData.dart';
 import 'GlucoseTest.dart';
 import 'TomatoBridge.dart';
 
-GlucoseDataSource glucoseDataSourceDeserialize(String typeName, String instanceData){
+GlucoseDataSource deserializeGlucoseDataSource(String typeName, String instanceData){
   // Dart, you suck.
   // Yes. I really can't override static/factory/constructor and have to hardcode that.
   switch(typeName){
@@ -22,12 +22,19 @@ GlucoseDataSource glucoseDataSourceDeserialize(String typeName, String instanceD
   }
 }
 
-GlucoseData glucoseDataDeserialize(String typeName, String instanceData){
-  // Dart, you suck.
-  // Yes. I really can't override static/factory/constructor and have to hardcode that.
+GlucoseData deserializeGlucoseData(GlucoseDataSource src, String typeName, String instanceData){
   switch(typeName){
     case "GenericCalibrableGlucoseData":
-      return GenericCalibrableGlucoseData.deserialize(instanceData);
+      return GenericCalibrableGlucoseData.deserialize(src, instanceData);
+    default:
+      return null;
+  }
+}
+
+Alarm deserializeAlarm(GlucoseDataSource src, String typeName, String instanceData){
+  switch(typeName){
+    case "Alarm":
+      return Alarm.deserialize(src, instanceData);
     default:
       return null;
   }
@@ -35,14 +42,23 @@ GlucoseData glucoseDataDeserialize(String typeName, String instanceData){
 
 class AvocadoState {
   BehaviorSubject<Iterable<GlucoseDataSource>> sourcesUpdate;
+
   LinkedHashMap<GlucoseDataSource, GlucoseDataBuffer> glucoseData;
   HashMap<String, GlucoseDataSource> sourceIds;
+
+  HashMap<Alarm, int> alarmIds;
+  HashMap<GlucoseDataSource, List<Alarm>> alarms;
+
   String _dbName;
   Database db;
 
   AvocadoState(this._dbName) {
     glucoseData = LinkedHashMap();
     sourceIds = HashMap();
+
+    alarms = HashMap();
+    alarmIds = HashMap();
+
     sourcesUpdate = BehaviorSubject.seeded(glucoseDataSources);
   }
 
@@ -51,30 +67,67 @@ class AvocadoState {
       onCreate: (db, version) async {
         await db.execute('''
             CREATE TABLE glucose_data_source (
-                id STRING PRIMARY KEY,
-                type_name STRING NOT NULL,
-                instance_data STRING NOT NULL
+              id STRING PRIMARY KEY,
+              type_name STRING NOT NULL,
+              instance_data STRING NOT NULL
             );
             ''');
         await db.execute('''
             CREATE TABLE glucose_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                source_id STRING NOT NULL,
-                time INTEGER NOT NULL,
-                type_name STRING NOT NULL,
-                instance_data STRING NOT NULL,
-                FOREIGN KEY (source_id)
-                REFERENCES glucose_data_source (id)
-                  ON UPDATE CASCADE
-                  ON DELETE CASCADE
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              source_id STRING NOT NULL,
+              time INTEGER NOT NULL,
+              type_name STRING NOT NULL,
+              instance_data STRING NOT NULL,
+              FOREIGN KEY (source_id)
+              REFERENCES glucose_data_source (id)
+                ON UPDATE CASCADE
+                ON DELETE CASCADE
             );
             ''');
+
+        await db.execute('''
+          CREATE TABLE alarm (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_id STRING NOT NULL,
+            type_name STRING NOT NULL,
+            instance_data STRING NOT NULL,
+            FOREIGN KEY (source_id)
+            REFERENCES glucose_data_source (id)
+              ON UPDATE CASCADE
+              ON DELETE CASCADE
+          )
+        ''');
       },
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON;');
       },
       version: 1
     );
+  }
+
+  Future<void> loadSourcesFromDb() async {
+    await _openDb();
+    var resp = await db.query("glucose_data_source",
+        columns: ["type_name", "instance_data"],
+    );
+
+    for (var row in resp) {
+      try {
+        var gd = deserializeGlucoseDataSource(
+            row['type_name'],
+            row['instance_data']
+        );
+        if (gd != null) {
+
+        }
+      } on Exception catch (e) {
+        log("error deserializing glucose data source with"
+            "type ${row['type_name']} and"
+            "instance data ${row['instance_data']}: $e"
+        );
+      }
+    }
   }
 
   Future<Iterable<GlucoseData>> loadDataFromDb(GlucoseDataSource source) async {
@@ -92,7 +145,8 @@ class AvocadoState {
     return (() sync* {
       for (var row in resp) {
         try {
-          var gd = glucoseDataDeserialize(
+          var gd = deserializeGlucoseData(
+              source,
               row['type_name'],
               row['instance_data']
           );
@@ -105,6 +159,35 @@ class AvocadoState {
         }
       }
     })();
+  }
+
+  Future<Map<Alarm, int>> loadAlarmsFromDb(GlucoseDataSource source) async {
+    await _openDb();
+    var resp = await db.query("alarm",
+        columns: ["id", "source_id", "type_name", "instance_data"],
+        where: "source_id = ?",
+        whereArgs: [source.sourceId]
+    );
+
+    Map<Alarm, int> ret = LinkedHashMap();
+
+    for (var row in resp) {
+      try {
+        var gd = deserializeAlarm(
+            source,
+            row['type_name'],
+            row['instance_data']
+        );
+        if (gd != null) ret[gd] = row['id'];
+      } on Exception catch (e) {
+        log("error deserializing alarm with"
+            "type ${row['type_name']} and"
+            "instance data ${row['instance_data']}: $e"
+        );
+      }
+
+      return ret;
+    }
   }
 
   Future<void> saveDataToDb(GlucoseData data) async {
@@ -135,10 +218,43 @@ class AvocadoState {
       'id': source.sourceId,
       'type_name': source.typeName,
       'instance_data': source.instanceData
-    }, conflictAlgorithm: ConflictAlgorithm.ignore) == null)
+    }, conflictAlgorithm: ConflictAlgorithm.ignore) == null) {
       buf.addAll(await loadDataFromDb(source));
 
+      var alarms_ = await loadAlarmsFromDb(source);
+      alarms[source] = alarms_.keys.toList();
+      alarms[source].forEach((alarm) => alarm.updatesStream.listen(_handleAlarmUpdate));
+      alarmIds.addAll(alarms_);
+    }
+
     sourcesUpdate.add(glucoseDataSources);
+  }
+
+  Future<void> addAlarm(Alarm alarm) async {
+    await _openDb();
+
+    if(alarmIds.containsKey(alarm)) throw StateError("Alarm is already registered");
+
+    int id = await db.insert('alarm', {
+      'source_id': alarm.source.sourceId,
+      'type_name': alarm.typeName,
+      'instance_data': alarm.instanceData
+    });
+
+    alarmIds[alarm] = id;
+    alarms[alarm.source].add(alarm);
+
+    alarm.updatesStream.listen(_handleAlarmUpdate);
+  }
+
+  void _handleAlarmUpdate(Alarm alarm) async {
+    await _openDb();
+
+    await db.update('alarm', {
+          'instance_data': alarm.instanceData
+        },
+        where: "id = ?",
+        whereArgs: [alarmIds[alarm]]);
   }
 
   Iterable<GlucoseDataSource> get glucoseDataSources => glucoseData.keys;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AboutRoute extends StatelessWidget {
+class AboutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
