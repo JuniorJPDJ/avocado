@@ -4,7 +4,6 @@ import 'AvocadoState.dart';
 import 'about_view.dart';
 import 'connect_source_view.dart';
 import 'data_source_view.dart';
-import 'device_route_view.dart';
 import 'profile_view.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -20,7 +19,7 @@ class MainDrawer extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 children: <Widget>[
                   Container(
-                  child: DrawerHeader(
+                      child: DrawerHeader(
                     decoration: BoxDecoration(
                       color: Colors.blue,
                     ),

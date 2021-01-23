@@ -229,6 +229,24 @@ class AvocadoState {
     sourcesUpdates.add(glucoseDataSources);
   }
 
+  Future<void> removeDataSource(GlucoseDataSource source) async {
+    await _openDb();
+
+    // no need to remove from db, foreign key will handle that
+    alarmIds.removeWhere((alarm, id) => alarm.source == source);
+    alarms.remove(source);
+
+    alarmUpdates.add(null);
+
+    // I gonna pray that garbage collector will cleanup source and it's stream and it won't call any stream updates, ok?
+    glucoseData.remove(source);
+    sourceIds.remove(source.sourceId);
+    sourcesUpdates.add(glucoseDataSources);
+
+    await db.delete('glucose_data_source',
+        where: 'id = ?', whereArgs: [source.sourceId]);
+  }
+
   Future<void> addAlarm(Alarm alarm) async {
     await _openDb();
 
@@ -249,6 +267,19 @@ class AvocadoState {
     alarmUpdates.add(null);
   }
 
+  Future<void> removeAlarm(Alarm alarm) async {
+    var id = alarmIds[alarm];
+    if (id == null) return;
+
+    await _openDb();
+
+    await db.delete('alarm', where: 'id = ?', whereArgs: [id]);
+    alarmIds.remove(alarm);
+    alarms[alarm.source].remove(alarm);
+
+    alarmUpdates.add(null);
+  }
+
   void _handleAlarmUpdate(Alarm alarm) async {
     await _openDb();
 
@@ -259,6 +290,8 @@ class AvocadoState {
   Iterable<GlucoseDataSource> get glucoseDataSources => glucoseData.keys;
 
   void addMeasurement(GlucoseDataSource source, GlucoseData data) {
+    if (!glucoseData.containsKey(source)) return;
+
     saveDataToDb(data);
     glucoseData[source].add(data);
 

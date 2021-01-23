@@ -45,15 +45,18 @@ class _QRReaderViewState extends State<QRReaderView> {
                 children: <Widget>[
                   if (result != null)
                     Column(children: <Widget>[
-                    Text('Barcode Type: ${describeEnum(result.format)}',
-                      style: TextStyle(fontSize: 10),),
-                    Text('Data: ${result.code}',
-                      style: TextStyle(fontSize: 10),)
+                      Text(
+                        'Barcode Type: ${describeEnum(result.format)}',
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      Text(
+                        'Data: ${result.code}',
+                        style: TextStyle(fontSize: 10),
+                      )
                     ])
                   else
                     Text('Scan a code'),
                   Row(
-
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -61,7 +64,7 @@ class _QRReaderViewState extends State<QRReaderView> {
                         width: 250,
                         margin: EdgeInsets.all(8),
                         child: RaisedButton(
-                          color: Colors.blue,
+                            color: Colors.blue,
                             onPressed: () => setState(() {
                                   controller?.flipCamera();
                                 }),
@@ -70,12 +73,14 @@ class _QRReaderViewState extends State<QRReaderView> {
                               builder: (context, snapshot) {
                                 if (snapshot.data != null) {
                                   return Text(
-                                      'Rotate camera',
+                                    'Rotate camera',
                                     style: TextStyle(color: Colors.white),
                                   );
                                 } else {
-                                  return Text('loading',
-                                    style: TextStyle(color: Colors.white),);
+                                  return Text(
+                                    'loading',
+                                    style: TextStyle(color: Colors.white),
+                                  );
                                 }
                               },
                             )),

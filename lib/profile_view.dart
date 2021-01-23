@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:pretty_things/testf.dart';
 
 class ProfileView extends StatelessWidget {
   TextEditingController name;

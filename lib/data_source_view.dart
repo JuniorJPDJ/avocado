@@ -1,15 +1,12 @@
-import 'dart:developer';
-
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
 import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 import 'alarm_list_view.dart';
+import 'connect_source_view.dart';
 import 'main_drawer.dart';
 import 'qr_share_view.dart';
-
-// TODO: delete source
 
 class DataSourceView extends StatelessWidget {
   final GlucoseDataSource dataSource;
@@ -17,9 +14,9 @@ class DataSourceView extends StatelessWidget {
 
   DataSourceView(this.state, this.dataSource);
 
-  Widget _buildPopupDialog(BuildContext context) {
+  Widget _buildCalibrationDialog(BuildContext context) {
     return new AlertDialog(
-      title: const Text('Please calibrate'),
+      title: const Text('Enter current glucose level for calibration'),
       content: new Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,17 +40,21 @@ class DataSourceView extends StatelessWidget {
     );
   }
 
-  Widget _buildPopupDialogDelete(BuildContext context) {
+  Widget _buildDeleteDialog(BuildContext context) {
     return new AlertDialog(
-      title: const Text('Are you sure you want to delete this view?'),
+      title: const Text(
+          'Are you sure you want to remove this data source?\nAll related data will be deleted!'),
       content: new Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
       ),
       actions: <Widget>[
         new FlatButton(
-          onPressed: () {
+          onPressed: () async {
             Navigator.of(context).pop();
+            await state.removeDataSource(dataSource);
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => ConnectSourceView(state)));
           },
           textColor: Theme.of(context).primaryColor,
           child: const Text('Delete'),
@@ -83,7 +84,7 @@ class DataSourceView extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) =>
-                          _buildPopupDialog(context),
+                          _buildCalibrationDialog(context),
                     );
                   },
                   child: Row(
@@ -103,24 +104,25 @@ class DataSourceView extends StatelessWidget {
                     );
                   },
                   child: Row(
-                        children: <Widget>[
-                          Icon(Icons.alarm, color: Colors.blue),
-                          Text('  Alarm'),
-                        ],
-                      ),
+                    children: <Widget>[
+                      Icon(Icons.alarm, color: Colors.blue),
+                      Text('  Alarm'),
+                    ],
+                  ),
                 ),
                 PopupMenuItem(
                   value: () {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) =>
-                          _buildPopupDialogDelete(context),
+                          _buildDeleteDialog(context),
                     );
                   },
                   child: Row(
                     children: <Widget>[
                       Icon(Icons.delete_outline, color: Colors.blue),
-                      Text('  Delete View'),
+                      // I cried. XDDDDD
+                      Text('  Delete source'),
                     ],
                   ),
                 ),

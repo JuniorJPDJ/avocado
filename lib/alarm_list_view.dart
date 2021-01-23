@@ -6,37 +6,38 @@ import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 import 'alarm_edit_view.dart';
 
-Widget _buildPopupDialogDelete(BuildContext context) {
-  return new AlertDialog(
-    title: const Text('Are you sure you want to delete this alarm?'),
-    content: new Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-    ),
-    actions: <Widget>[
-      new FlatButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        textColor: Theme.of(context).primaryColor,
-        child: const Text('Delete'),
-      ),
-      new FlatButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        textColor: Theme.of(context).primaryColor,
-        child: const Text('Cancel'),
-      ),
-    ],
-  );
-}
-
 class AlarmListView extends StatelessWidget {
   final AvocadoState state;
   final GlucoseDataSource dataSource;
 
   AlarmListView(this.state, this.dataSource);
+
+  Widget _buildDeleteDialog(BuildContext context, Alarm alarm) {
+    return new AlertDialog(
+      title: Text('Are you sure you want to delete alarm "${alarm.name}"?'),
+      content: new Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      actions: <Widget>[
+        new FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            state.removeAlarm(alarm);
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Delete'),
+        ),
+        new FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Cancel'),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +113,7 @@ class AlarmListView extends StatelessWidget {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) =>
-                                        _buildPopupDialogDelete(context),
+                                        _buildDeleteDialog(context, alarm),
                                   );
                                 },
                               ),
