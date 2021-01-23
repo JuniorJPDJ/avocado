@@ -95,7 +95,6 @@ class DataSourceView extends StatelessWidget {
                 ),
                 PopupMenuItem(
                   value: () {
-                    log('dupa');
                     Navigator.push(
                       context,
                       MaterialPageRoute(

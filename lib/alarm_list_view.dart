@@ -6,6 +6,32 @@ import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 import 'alarm_edit_view.dart';
 
+Widget _buildPopupDialogDelete(BuildContext context) {
+  return new AlertDialog(
+    title: const Text('Are you sure you want to delete this alarm?'),
+    content: new Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+    ),
+    actions: <Widget>[
+      new FlatButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        textColor: Theme.of(context).primaryColor,
+        child: const Text('Delete'),
+      ),
+      new FlatButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        textColor: Theme.of(context).primaryColor,
+        child: const Text('Cancel'),
+      ),
+    ],
+  );
+}
+
 class AlarmListView extends StatelessWidget {
   final AvocadoState state;
   final GlucoseDataSource dataSource;
@@ -82,8 +108,12 @@ class AlarmListView extends StatelessWidget {
                                 caption: 'Delete',
                                 color: Colors.red,
                                 icon: Icons.delete,
-                                onTap: () => {
-                                  // TODO: delete alarm
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        _buildPopupDialogDelete(context),
+                                  );
                                 },
                               ),
                             ],
