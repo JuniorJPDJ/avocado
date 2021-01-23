@@ -41,33 +41,38 @@ class DataSourceView extends StatelessWidget {
     );
   }
 
+  Widget _buildPopupDialogDelete(BuildContext context) {
+    return new AlertDialog(
+      title: const Text('Are you sure you want to delete this view?'),
+      content: new Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      actions: <Widget>[
+        new FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Delete'),
+        ),
+        new FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Cancel'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text('${dataSource.sourceId}: Overview'),
           actions: <Widget>[
-            /*IconButton(
-              icon: Icon(Icons.auto_fix_high),
-              tooltip: "Calibration",
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => _buildPopupDialog(context),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.alarm_sharp),
-              tooltip: 'Alarms',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AlarmListView(state, dataSource)),
-                );
-              },
-            )*/
             PopupMenuButton(
               itemBuilder: (context) => [
                 PopupMenuItem(
@@ -76,8 +81,7 @@ class DataSourceView extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  AlarmListView(state, dataSource)),
+                              builder: (context) => _buildPopupDialog(context)),
                         );
                       },
                       child: Row(
@@ -93,7 +97,7 @@ class DataSourceView extends StatelessWidget {
                       onTap: () {
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) => _buildPopupDialog(context),
+                          builder: (BuildContext context) => AlarmListView(state, dataSource),
                         );
                       },
                       child: Row(
@@ -109,7 +113,7 @@ class DataSourceView extends StatelessWidget {
                       onTap: () {
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) => _buildPopupDialog(context),
+                          builder: (BuildContext context) => _buildPopupDialogDelete(context),
                         );
                       },
                       child: Row(
