@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
@@ -74,55 +76,54 @@ class DataSourceView extends StatelessWidget {
           title: Text('${dataSource.sourceId}: Overview'),
           actions: <Widget>[
             PopupMenuButton(
+              onSelected: (v) => v(),
               itemBuilder: (context) => [
                 PopupMenuItem(
-                  child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => _buildPopupDialog(context)),
-                        );
-                      },
-                      child: Row(
-                        children: <Widget>[
-                          Icon(Icons.auto_fix_high,
-                          color: Colors.blue),
-                          Text('  Calibration'),
-                        ],
-                      )),
+                  value: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          _buildPopupDialog(context),
+                    );
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.auto_fix_high, color: Colors.blue),
+                      Text('  Calibration'),
+                    ],
+                  ),
                 ),
                 PopupMenuItem(
-                  child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => AlarmListView(state, dataSource),
-                        );
-                      },
-                      child: Row(
+                  value: () {
+                    log('dupa');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              AlarmListView(state, dataSource)),
+                    );
+                  },
+                  child: Row(
                         children: <Widget>[
-                          Icon(Icons.alarm,
-                              color: Colors.blue),
+                          Icon(Icons.alarm, color: Colors.blue),
                           Text('  Alarm'),
                         ],
-                      )),
+                      ),
                 ),
                 PopupMenuItem(
-                  child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => _buildPopupDialogDelete(context),
-                        );
-                      },
-                      child: Row(
-                        children: <Widget>[
-                          Icon(Icons.delete_outline,
-                              color: Colors.blue),
-                          Text('  Delete View'),
-                        ],
-                      )),
+                  value: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          _buildPopupDialogDelete(context),
+                    );
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.delete_outline, color: Colors.blue),
+                      Text('  Delete View'),
+                    ],
+                  ),
                 ),
               ],
             )
