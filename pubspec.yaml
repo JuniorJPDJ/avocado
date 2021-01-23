@@ -40,6 +40,8 @@ dependencies:
   flutter_ringtone_player: ^2.0.0
   qr_flutter: ^3.1.0
   qr_code_scanner: ^0.3.0
+  dependencies:
+  flutter_app_badger: ^1.1.2
 
 
 dev_dependencies:

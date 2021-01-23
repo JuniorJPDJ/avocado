@@ -1,6 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:pretty_things/qr_share_view.dart';
+
 import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 import 'alarm_list_view.dart';
@@ -98,7 +99,7 @@ class DataSourceView extends StatelessWidget {
                 )),
           ),
           Container(
-              margin: const EdgeInsets.only(top: 50.0, left: 20),
+              margin: const EdgeInsets.only(top: 20.0, left: 20),
               child: Row(
                 children: <Widget>[
                   if (dataSource is BatteryPowered) ...[
@@ -106,13 +107,17 @@ class DataSourceView extends StatelessWidget {
                     Text(
                         'Battery: ${(dataSource as BatteryPowered).batteryLevel}')
                   ],
-                  if (dataSource is Lifetimable) ...[
-                    Icon(Icons.calendar_today, color: Colors.blue),
-                    Text(
-                        'Sensor remaining lifetime: ${(dataSource as Lifetimable).remainingLifeTime}')
-                  ]
                 ],
               )),
+          Container(
+              margin: const EdgeInsets.only(top: 20.0, left: 20),
+              child: Row(children: <Widget>[
+                if (dataSource is Lifetimable) ...[
+                  Icon(Icons.calendar_today, color: Colors.blue),
+                  Text(
+                      'Sensor remaining lifetime: ${(dataSource as Lifetimable).remainingLifeTime}')
+                ]
+              ])),
           Container(
               margin: const EdgeInsets.only(right: 100, left: 100, top: 50),
               child: ElevatedButton(

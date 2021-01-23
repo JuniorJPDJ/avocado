@@ -1,5 +1,7 @@
 PODS:
   - Flutter (1.0.0)
+  - flutter_app_badger (0.0.1):
+    - Flutter
   - flutter_blue (0.0.1):
     - Flutter
     - flutter_blue/Protos (= 0.0.1)
@@ -22,6 +24,7 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
+  - flutter_app_badger (from `.symlinks/plugins/flutter_app_badger/ios`)
   - flutter_blue (from `.symlinks/plugins/flutter_blue/ios`)
   - flutter_ringtone_player (from `.symlinks/plugins/flutter_ringtone_player/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
@@ -36,6 +39,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
+  flutter_app_badger:
+    :path: ".symlinks/plugins/flutter_app_badger/ios"
   flutter_blue:
     :path: ".symlinks/plugins/flutter_blue/ios"
   flutter_ringtone_player:
@@ -47,6 +52,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_app_badger: 65de4d6f0c34a891df49e6cfb8a1c0496426fa68
   flutter_blue: eeb381dc4727a0954dede73515f683865494b370
   flutter_ringtone_player: 15eba85187230b87b2512f0e1b92225618bc03e7
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a

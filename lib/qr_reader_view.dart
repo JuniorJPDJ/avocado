@@ -44,30 +44,24 @@ class _QRReaderViewState extends State<QRReaderView> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   if (result != null)
-                    Text(
-                        'Barcode Type: ${describeEnum(result.format)}   Data: ${result.code}')
+                    Column(children: <Widget>[
+                    Text('Barcode Type: ${describeEnum(result.format)}',
+                      style: TextStyle(fontSize: 10),),
+                    Text('Data: ${result.code}',
+                      style: TextStyle(fontSize: 10),)
+                    ])
                   else
                     Text('Scan a code'),
                   Row(
+
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Container(
+                        width: 250,
                         margin: EdgeInsets.all(8),
                         child: RaisedButton(
-                            onPressed: () => setState(() {
-                                  controller?.toggleFlash();
-                                }),
-                            child: FutureBuilder(
-                              future: controller?.getFlashStatus(),
-                              builder: (context, snapshot) {
-                                return Text('Flash: ${snapshot.data}');
-                              },
-                            )),
-                      ),
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: RaisedButton(
+                          color: Colors.blue,
                             onPressed: () => setState(() {
                                   controller?.flipCamera();
                                 }),
@@ -76,36 +70,15 @@ class _QRReaderViewState extends State<QRReaderView> {
                               builder: (context, snapshot) {
                                 if (snapshot.data != null) {
                                   return Text(
-                                      'Camera facing ${describeEnum(snapshot.data)}');
+                                      'Rotate camera',
+                                    style: TextStyle(color: Colors.white),
+                                  );
                                 } else {
-                                  return Text('loading');
+                                  return Text('loading',
+                                    style: TextStyle(color: Colors.white),);
                                 }
                               },
                             )),
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: RaisedButton(
-                          onPressed: () {
-                            controller?.pauseCamera();
-                          },
-                          child: Text('pause', style: TextStyle(fontSize: 20)),
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: RaisedButton(
-                          onPressed: () {
-                            controller?.resumeCamera();
-                          },
-                          child: Text('resume', style: TextStyle(fontSize: 20)),
-                        ),
                       )
                     ],
                   ),

@@ -5,6 +5,7 @@ import 'about_view.dart';
 import 'connect_source_view.dart';
 import 'data_source_view.dart';
 import 'device_route_view.dart';
+import 'profile_view.dart';
 
 class MainDrawer extends StatelessWidget {
   final AvocadoState state;
@@ -18,25 +19,26 @@ class MainDrawer extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: <Widget>[
-                  DrawerHeader(
+                  Container(
+                  child: DrawerHeader(
                     decoration: BoxDecoration(
                       color: Colors.blue,
                     ),
                     child: Text(
-                      'Drawer Header',
+                      'Menu',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
                       ),
                     ),
-                  ),
+                  )),
                   ListTile(
                     leading: const Icon(Icons.account_circle_sharp),
                     title: const Text('Your Profile'),
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => DeviceRoute()),
+                        MaterialPageRoute(builder: (context) => ProfileView()),
                       );
                     },
                   ),
