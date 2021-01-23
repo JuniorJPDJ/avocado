@@ -259,10 +259,10 @@ class AvocadoState {
   Iterable<GlucoseDataSource> get glucoseDataSources => glucoseData.keys;
 
   void addMeasurement(GlucoseDataSource source, GlucoseData data) {
-    // TODO: try to run alarm if new enough
     saveDataToDb(data);
     glucoseData[source].add(data);
 
+    // TODO: try to run alarm only if new enough
     for (Alarm alarm in alarms[source]) {
       if (alarm.enabled &&
           !alarm.isSnoozed &&
@@ -273,6 +273,4 @@ class AvocadoState {
       }
     }
   }
-
-// TODO: try to load data sources from DB
 }

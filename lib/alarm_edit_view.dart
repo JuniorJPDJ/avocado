@@ -6,7 +6,6 @@ import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 
 // TODO: handle back button and ask if really want to cancel edit
-// TODO: save changes
 
 class AlarmEditView extends StatefulWidget {
   final AvocadoState state;
