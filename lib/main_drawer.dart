@@ -14,7 +14,7 @@ class MainDrawer extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: state.sourcesUpdate,
+        stream: state.sourcesUpdates,
         builder: (c, snapshot) => Drawer(
               child: ListView(
                 padding: EdgeInsets.zero,

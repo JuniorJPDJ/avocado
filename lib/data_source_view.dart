@@ -1,11 +1,11 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
-import 'package:pretty_things/qr_share_view.dart';
 
 import 'AvocadoState.dart';
 import 'GlucoseData.dart';
 import 'alarm_list_view.dart';
 import 'main_drawer.dart';
+import 'qr_share_view.dart';
 
 // TODO: delete source
 

@@ -68,7 +68,15 @@ class AlarmEditViewState extends State<AlarmEditView> {
             IconButton(
               icon: const Icon(Icons.check),
               tooltip: 'Save changes',
-              onPressed: () {},
+              onPressed: () async {
+                if (alarm == null)
+                  await state.addAlarm(Alarm(dataSource, name.text,
+                      num.parse(value.text), greater, enabled, snoozedTo));
+                else
+                  alarm.edit(name.text, num.parse(value.text), greater, enabled,
+                      snoozedTo);
+                Navigator.pop(context);
+              },
             )
           ],
         ),
@@ -94,7 +102,7 @@ class AlarmEditViewState extends State<AlarmEditView> {
           Container(
             child: StreamBuilder<void>(
               stream: Stream.periodic(Duration(milliseconds: 200)),
-              builder: (context, snapshot) => snoozedTo == null ||
+              builder: (_, __) => snoozedTo == null ||
                       DateTime.now().isAfter(snoozedTo)
                   ? Text('Not snoozed!')
                   : Text(
@@ -105,13 +113,13 @@ class AlarmEditViewState extends State<AlarmEditView> {
               child: Center(
                   child: ButtonBar(children: <Widget>[
             ElevatedButton(
-                onPressed: () => snooze(15),
+                onPressed: () => _snooze(15),
                 child: new Text('snooze for\n15 min')),
             ElevatedButton(
-                onPressed: () => snooze(30),
+                onPressed: () => _snooze(30),
                 child: new Text('snooze for\n30 min')),
             ElevatedButton(
-                onPressed: () => snooze(45),
+                onPressed: () => _snooze(45),
                 child: new Text('snooze for\n45 min')),
             ElevatedButton(
                 onPressed: () => setState(() => snoozedTo = null),
@@ -134,6 +142,6 @@ class AlarmEditViewState extends State<AlarmEditView> {
         ]));
   }
 
-  void snooze(int minutes) => setState(
+  void _snooze(int minutes) => setState(
       () => snoozedTo = DateTime.now().add(Duration(minutes: minutes)));
 }

@@ -10,12 +10,7 @@ class AlarmListView extends StatelessWidget {
   final AvocadoState state;
   final GlucoseDataSource dataSource;
 
-  AlarmListView(this.state, this.dataSource) {
-    // TODO: <test>
-    Alarm alarm = Alarm(dataSource, "TEST 1", 40, false);
-    state.addAlarm(alarm);
-    // </test>
-  }
+  AlarmListView(this.state, this.dataSource);
 
   @override
   Widget build(BuildContext context) {
@@ -43,55 +38,57 @@ class AlarmListView extends StatelessWidget {
             ),
           ],
         ),
-        body: ListView(
-          children: state.alarms[dataSource]
-              .map((Alarm alarm) => Slidable(
-                    actionPane: SlidableDrawerActionPane(),
-                    actionExtentRatio: 0.25,
-                    child: Container(
-                      color: Colors.white,
-                      child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.indigoAccent,
-                            child: Text('${alarm.value}'),
-                            foregroundColor: Colors.white,
-                          ),
-                          title: Text(alarm.name),
-                          subtitle: Text('SlidableDrawerDelegate'),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      AlarmEditView(state, alarm)),
-                            );
-                          }),
-                    ),
-                    secondaryActions: <Widget>[
-                      IconSlideAction(
-                        caption: 'Edit',
-                        color: Colors.black45,
-                        icon: Icons.more_horiz,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    AlarmEditView(state, alarm)),
-                          );
-                        },
-                      ),
-                      IconSlideAction(
-                        caption: 'Delete',
-                        color: Colors.red,
-                        icon: Icons.delete,
-                        onTap: () => {
-                          // TODO: delete alarm
-                        },
-                      ),
-                    ],
-                  ))
-              .toList(),
-        ));
+        body: StreamBuilder<void>(
+            stream: Stream.periodic(Duration(milliseconds: 200)),
+            builder: (_, __) => ListView(
+                  children: state.alarms[dataSource]
+                      .map((Alarm alarm) => Slidable(
+                            actionPane: SlidableDrawerActionPane(),
+                            actionExtentRatio: 0.25,
+                            child: Container(
+                              color: Colors.white,
+                              child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.indigoAccent,
+                                    child: Text('${alarm.value}'),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  title: Text(alarm.name),
+                                  subtitle: Text('SlidableDrawerDelegate'),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              AlarmEditView(state, alarm)),
+                                    );
+                                  }),
+                            ),
+                            secondaryActions: <Widget>[
+                              IconSlideAction(
+                                caption: 'Edit',
+                                color: Colors.black45,
+                                icon: Icons.more_horiz,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AlarmEditView(state, alarm)),
+                                  );
+                                },
+                              ),
+                              IconSlideAction(
+                                caption: 'Delete',
+                                color: Colors.red,
+                                icon: Icons.delete,
+                                onTap: () => {
+                                  // TODO: delete alarm
+                                },
+                              ),
+                            ],
+                          ))
+                      .toList(),
+                )));
   }
 }

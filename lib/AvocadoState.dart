@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:developer';
 
@@ -44,7 +45,9 @@ Alarm deserializeAlarm(
 }
 
 class AvocadoState {
-  BehaviorSubject<Iterable<GlucoseDataSource>> sourcesUpdate;
+  BehaviorSubject<Iterable<GlucoseDataSource>> sourcesUpdates;
+  BehaviorSubject<void> alarmUpdates;
+  BehaviorSubject<AlarmTrigger> alarmAppears;
 
   LinkedHashMap<GlucoseDataSource, GlucoseDataBuffer> glucoseData;
   HashMap<String, GlucoseDataSource> sourceIds;
@@ -61,8 +64,10 @@ class AvocadoState {
 
     alarms = HashMap();
     alarmIds = HashMap();
+    alarmAppears = BehaviorSubject();
 
-    sourcesUpdate = BehaviorSubject.seeded(glucoseDataSources);
+    sourcesUpdates = BehaviorSubject.seeded(glucoseDataSources);
+    alarmUpdates = BehaviorSubject.seeded(null);
   }
 
   Future<void> _openDb() async {
@@ -219,8 +224,9 @@ class AvocadoState {
       alarmIds.addAll(dbAlarms);
     } else
       alarms[source] = [];
+    alarmUpdates.add(null);
 
-    sourcesUpdate.add(glucoseDataSources);
+    sourcesUpdates.add(glucoseDataSources);
   }
 
   Future<void> addAlarm(Alarm alarm) async {
@@ -239,6 +245,8 @@ class AvocadoState {
     alarms[alarm.source].add(alarm);
 
     alarm.updatesStream.listen(_handleAlarmUpdate);
+
+    alarmUpdates.add(null);
   }
 
   void _handleAlarmUpdate(Alarm alarm) async {
@@ -254,6 +262,16 @@ class AvocadoState {
     // TODO: try to run alarm if new enough
     saveDataToDb(data);
     glucoseData[source].add(data);
+
+    for (Alarm alarm in alarms[source]) {
+      if (alarm.enabled &&
+          !alarm.isSnoozed &&
+          (alarm.greater
+              ? alarm.value < data.value
+              : alarm.value > data.value)) {
+        alarmAppears.add(AlarmTrigger(alarm, data));
+      }
+    }
   }
 
 // TODO: try to load data sources from DB

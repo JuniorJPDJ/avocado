@@ -20,6 +20,15 @@ class Alarm implements StringSerializable {
     updatesStream = BehaviorSubject.seeded(this);
   }
 
+  void edit(name, value, greater, enabled, snoozedTo) {
+    _name = name;
+    _value = value;
+    _greater = greater;
+    _enabled = enabled;
+    _snoozedTo = snoozedTo;
+    updatesStream.add(this);
+  }
+
   String get name => _name;
 
   set name(String v) {
@@ -51,6 +60,8 @@ class Alarm implements StringSerializable {
     updatesStream.add(this);
   }
 
+  bool get isSnoozed => snoozedTo != null && snoozedTo.isAfter(DateTime.now());
+
   DateTime get snoozedTo => _snoozedTo;
 
   bool get enabled => _enabled;
@@ -70,4 +81,11 @@ class Alarm implements StringSerializable {
     return Alarm(src, data[1], num.parse(data[2]), data[3] == "true",
         data[4] == "true", data[5] == "null" ? null : DateTime.parse(data[5]));
   }
+}
+
+class AlarmTrigger {
+  Alarm alarm;
+  GlucoseData data;
+
+  AlarmTrigger(this.alarm, this.data);
 }

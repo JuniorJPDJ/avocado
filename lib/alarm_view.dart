@@ -1,7 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
-class AlarmView extends StatelessWidget {
+import 'Alarm.dart';
+import 'AvocadoState.dart';
+import 'GlucoseData.dart';
+
+class AlarmView extends StatefulWidget {
+  final AvocadoState state;
+  final Alarm alarm;
+  final GlucoseData data;
+
+  AlarmView(this.state, AlarmTrigger trigger)
+      : alarm = trigger.alarm,
+        data = trigger.data;
+
+  AlarmViewState createState() => AlarmViewState(state, alarm, data);
+}
+
+class AlarmViewState extends State<AlarmView> {
+  AvocadoState state;
+  Alarm alarm;
+  GlucoseData data;
+
+  AlarmViewState(this.state, this.alarm, this.data);
+
   @override
   Widget build(BuildContext context) {
     FlutterRingtonePlayer.playAlarm();
@@ -18,10 +40,17 @@ class AlarmView extends StatelessWidget {
           Container(
             margin: const EdgeInsets.all(20.0),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => state.alarmAppears.add(null),
               child: new Text('Snooze the alarm'),
             ),
           ),
         ])));
+  }
+
+  @override
+  void dispose() {
+    FlutterRingtonePlayer.stop();
+
+    super.dispose();
   }
 }
