@@ -70,30 +70,39 @@ abstract class CalibrableGlucoseDataSource implements GlucoseDataSource {
   BehaviorSubject<CalibrableGlucoseData> get dataStream;
 
   void calibrate(num factor);
+
+  void calibrateByLast(num lastReading);
 }
 
 abstract class CalibrableGlucoseDataSourceMixin
     implements CalibrableGlucoseDataSource {
   num calibrationFactor;
 
+  CalibrableGlucoseData get lastReading => dataStream?.value;
+
   void calibrate(num factor) {
-    dataStream.value.calibrate(factor);
+    lastReading?.calibrate(factor);
     calibrationFactor = factor;
+  }
+
+  void calibrateByLast(num lastReading) {
+    num factor = lastReading / this.lastReading?.rawValue;
+    calibrate(factor);
   }
 }
 
 class GlucoseDataBuffer extends CircularBuffer<GlucoseData> {
-  BehaviorSubject<GlucoseDataBuffer> updatesStream;
+  BehaviorSubject<void> updatesStream;
 
   GlucoseDataBuffer([length = 24 * 60]) : super(length) {
     // one measurement per minute, 24h
-    updatesStream = BehaviorSubject.seeded(this);
+    updatesStream = BehaviorSubject.seeded(null);
   }
 
   @override
   void add(GlucoseData el) {
     super.add(el);
-    updatesStream.add(this);
+    updatesStream.add(null);
   }
 }
 

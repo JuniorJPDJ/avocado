@@ -7,6 +7,7 @@ import 'alarm_list_view.dart';
 import 'connect_source_view.dart';
 import 'main_drawer.dart';
 import 'qr_share_view.dart';
+import 'utils.dart';
 
 class DataSourceView extends StatelessWidget {
   final GlucoseDataSource dataSource;
@@ -15,6 +16,8 @@ class DataSourceView extends StatelessWidget {
   DataSourceView(this.state, this.dataSource);
 
   Widget _buildCalibrationDialog(BuildContext context) {
+    var cont = TextEditingController();
+
     return new AlertDialog(
       title: const Text('Enter current glucose level for calibration'),
       content: new Column(
@@ -23,6 +26,7 @@ class DataSourceView extends StatelessWidget {
         children: <Widget>[
           Text("Blood sugar level"),
           TextField(
+            controller: cont,
             decoration: InputDecoration(hintText: 'mg/dL'),
             keyboardType: TextInputType.number,
           ),
@@ -31,10 +35,20 @@ class DataSourceView extends StatelessWidget {
       actions: <Widget>[
         new FlatButton(
           onPressed: () {
+            (dataSource as CalibrableGlucoseDataSource)
+                .calibrateByLast(num.parse(cont.text));
+            state.glucoseData[dataSource].updatesStream.add(null);
             Navigator.of(context).pop();
           },
           textColor: Theme.of(context).primaryColor,
           child: const Text('Save'),
+        ),
+        new FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Cancel'),
         ),
       ],
     );
@@ -79,21 +93,22 @@ class DataSourceView extends StatelessWidget {
             PopupMenuButton(
               onSelected: (v) => v(),
               itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) =>
-                          _buildCalibrationDialog(context),
-                    );
-                  },
-                  child: Row(
-                    children: <Widget>[
-                      Icon(Icons.auto_fix_high, color: Colors.blue),
-                      Text('  Calibration'),
-                    ],
+                if (dataSource is CalibrableGlucoseDataSource)
+                  PopupMenuItem(
+                    value: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            _buildCalibrationDialog(context),
+                      );
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Icon(Icons.auto_fix_high, color: Colors.blue),
+                        Text('  Calibration'),
+                      ],
+                    ),
                   ),
-                ),
                 PopupMenuItem(
                   value: () {
                     Navigator.push(
@@ -136,12 +151,11 @@ class DataSourceView extends StatelessWidget {
             color: Colors.blueAccent[600],
             width: 48.0,
             height: 48.0,
-            child: StreamBuilder<GlucoseData>(
-              stream: state.glucoseData[dataSource].updatesStream
-                  .map((buf) => buf.last),
+            child: StreamBuilder<void>(
+              stream: state.glucoseData[dataSource].updatesStream,
               builder: (context, snapshot) => Center(
                 child: Text(
-                  "${snapshot.data?.value ?? "N/A"}",
+                  "${nullOnException(() => state.glucoseData[dataSource].last)?.value?.toInt() ?? "N/A"}",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
               ),
@@ -151,11 +165,10 @@ class DataSourceView extends StatelessWidget {
             child: AspectRatio(
                 aspectRatio: 3 / 2,
                 // child: GlucoseDataChart.fromBuffer(state.glucoseData[dataSource])
-                child: StreamBuilder<GlucoseDataBuffer>(
+                child: StreamBuilder<void>(
                   stream: state.glucoseData[dataSource].updatesStream,
-                  initialData: state.glucoseData[dataSource],
-                  builder: (context, snapshot) =>
-                      GlucoseDataChart.fromBuffer(snapshot.data),
+                  builder: (context, snapshot) => GlucoseDataChart.fromBuffer(
+                      state.glucoseData[dataSource]),
                 )),
           ),
           Container(

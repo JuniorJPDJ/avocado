@@ -208,4 +208,10 @@ class TomatoBridge
   @override
   Duration get remainingLifeTime =>
       rxPacketStream?.value?.packet?.remainingSensorLifeTime;
+
+  @override
+  CalibrableGlucoseData get lastReading =>
+      super.lastReading ??
+      FreestyleLibreGlucoseData(
+          rxPacketStream?.value?.packet, 0, calibrationFactor);
 }

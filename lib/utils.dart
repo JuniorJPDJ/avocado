@@ -72,3 +72,11 @@ abstract class StringSerializable {
 
   String get instanceData;
 }
+
+T nullOnException<T>(T Function() f) {
+  try {
+    return f();
+  } catch (_) {
+    return null;
+  }
+}
