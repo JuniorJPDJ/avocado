@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'AvocadoState.dart';
 import 'GlucoseTest.dart';
 import 'bt_views.dart';
+import 'data_source_view.dart';
 import 'main_drawer.dart';
 import 'qr_reader_view.dart';
 
 class ConnectSourceView extends StatelessWidget {
   final AvocadoState state;
 
-  ConnectSourceView(this.state);
+  ConnectSourceView(this.state, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +25,10 @@ class ConnectSourceView extends StatelessWidget {
             leading: Icon(Icons.bluetooth_connected),
             title: Text('Connect your MiaoMiao'),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => BluetoothMainView()),
+                MaterialPageRoute(
+                    builder: (context) => BluetoothMainView(state)),
               );
             },
           ),
@@ -34,18 +36,22 @@ class ConnectSourceView extends StatelessWidget {
             leading: Icon(Icons.cloud_download_outlined),
             title: Text('Connect to the cloud'),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => QRReaderView()),
+                MaterialPageRoute(builder: (context) => QRReaderView(state)),
               );
             },
           ),
           ListTile(
             leading: Icon(Icons.sensor_door),
-            title: Text('Add debug data source'),
+            title: Text('Add test data source'),
             onTap: () async {
-              state.addDataSource(TmpDataSource());
-              if (Navigator.canPop(context)) Navigator.pop(context);
+              var src = TestDataSource();
+              state.addDataSource(src);
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DataSourceView(state, src)));
             },
           ),
         ],

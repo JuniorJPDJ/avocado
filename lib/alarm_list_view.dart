@@ -10,34 +10,7 @@ class AlarmListView extends StatelessWidget {
   final AvocadoState state;
   final GlucoseDataSource dataSource;
 
-  AlarmListView(this.state, this.dataSource);
-
-  Widget _buildDeleteDialog(BuildContext context, Alarm alarm) {
-    return new AlertDialog(
-      title: Text('Are you sure you want to delete alarm "${alarm.name}"?'),
-      content: new Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-      ),
-      actions: <Widget>[
-        new FlatButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            state.removeAlarm(alarm);
-          },
-          textColor: Theme.of(context).primaryColor,
-          child: const Text('Delete'),
-        ),
-        new FlatButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          textColor: Theme.of(context).primaryColor,
-          child: const Text('Cancel'),
-        ),
-      ],
-    );
-  }
+  AlarmListView(this.state, this.dataSource, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +86,8 @@ class AlarmListView extends StatelessWidget {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) =>
-                                        _buildDeleteDialog(context, alarm),
+                                        buildDeleteAlarmDialog(
+                                            state, context, alarm),
                                   );
                                 },
                               ),

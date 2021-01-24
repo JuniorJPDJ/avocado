@@ -1,19 +1,27 @@
+// Based on flutter_blue example code by
 // Copyright 2017, Paul DeMarco.
 // All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
+// BSD-style license that can be found in the LICENSE file:
+// https://github.com/pauldemarco/flutter_blue/blob/master/LICENSE
+
+// Modified by Jacek Pruciak (@juniorjpdj) and Michalina Słomiańska (@chasiami)
 
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
+import 'AvocadoState.dart';
 import 'TomatoBridge.dart';
 import 'utils.dart';
 
 const SCAN_DURATION = 15;
 
 class BluetoothMainView extends StatelessWidget {
+  final AvocadoState state;
+
+  BluetoothMainView(this.state, {Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<BluetoothState>(
@@ -22,7 +30,7 @@ class BluetoothMainView extends StatelessWidget {
       builder: (c, snapshot) {
         final state = snapshot.data;
         if (state == BluetoothState.on) {
-          return FindDevicesView();
+          return FindDevicesView(this.state);
         }
         return BluetoothOffView(state: state);
       },
@@ -96,8 +104,14 @@ class ScanResultTile extends StatelessWidget {
 }
 
 class FindDevicesView extends StatelessWidget {
+  final AvocadoState state;
+
+  FindDevicesView(this.state, {Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    FlutterBlue.instance.startScan(timeout: Duration(seconds: SCAN_DURATION));
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Find Devices'),
@@ -117,10 +131,11 @@ class FindDevicesView extends StatelessWidget {
                     .map(
                       (r) => ScanResultTile(
                         result: r,
-                        onTap: () => Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) {
-                          return DeviceScreen(device: r.device);
-                        })),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    DeviceScreen(state, r.device))),
                       ),
                     )
                     .toList(),
@@ -130,32 +145,28 @@ class FindDevicesView extends StatelessWidget {
         ),
       ),
       floatingActionButton: StreamBuilder<bool>(
-        stream: FlutterBlue.instance.isScanning,
-        initialData: false,
-        builder: (c, snapshot) {
-          if (snapshot.data) {
-            return FloatingActionButton(
-              child: Icon(Icons.stop),
-              onPressed: () => FlutterBlue.instance.stopScan(),
-              backgroundColor: Colors.red,
-            );
-          } else {
-            return FloatingActionButton(
-                child: Icon(Icons.search),
-                onPressed: () => FlutterBlue.instance
-                    .startScan(timeout: Duration(seconds: SCAN_DURATION)));
-          }
-        },
-      ),
+          stream: FlutterBlue.instance.isScanning,
+          initialData: false,
+          builder: (c, snapshot) => snapshot.data
+              ? FloatingActionButton(
+                  child: Icon(Icons.stop),
+                  onPressed: () => FlutterBlue.instance.stopScan(),
+                  backgroundColor: Colors.red,
+                )
+              : FloatingActionButton(
+                  child: Icon(Icons.search),
+                  onPressed: () => FlutterBlue.instance
+                      .startScan(timeout: Duration(seconds: SCAN_DURATION)))),
     );
   }
 }
 
 class DeviceScreen extends StatelessWidget {
-  DeviceScreen({Key key, this.device}) : super(key: key);
-
+  final AvocadoState state;
   final BluetoothDevice device;
   TomatoBridge bridge;
+
+  DeviceScreen(this.state, this.device, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -202,13 +213,14 @@ class DeviceScreen extends StatelessWidget {
                     stream: (() async* {
                       try {
                         var data = StringBuffer();
-                        log("initing stream!", name: "DeviceScreen");
 
                         bridge ??= await TomatoBridge.create(device);
                         bridge.rxPacketStream.listen((packet) {
                           data.write(parseBTPacket(packet));
                         });
                         await bridge.initSensor();
+
+                        state.addDataSource(bridge);
 
                         for (int i = 0;; ++i) {
                           await Future<void>.delayed(

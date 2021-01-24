@@ -13,7 +13,7 @@ class DataSourceView extends StatelessWidget {
   final GlucoseDataSource dataSource;
   final AvocadoState state;
 
-  DataSourceView(this.state, this.dataSource);
+  DataSourceView(this.state, this.dataSource, {Key key}) : super(key: key);
 
   Widget _buildCalibrationDialog(BuildContext context) {
     var cont = TextEditingController();
@@ -209,13 +209,15 @@ class DataSourceView extends StatelessWidget {
 }
 
 class GlucoseDataChart extends StatelessWidget {
+  // TODO: change this chart lib
   final List<charts.Series<GlucoseData, DateTime>> seriesList;
 
   final bool animate;
 
-  GlucoseDataChart(this.seriesList, {this.animate = false});
+  GlucoseDataChart(this.seriesList, {this.animate = false, Key key})
+      : super(key: key);
 
-  factory GlucoseDataChart.fromBuffer(GlucoseDataBuffer buff) {
+  factory GlucoseDataChart.fromBuffer(GlucoseDataBuffer buff, {Key key}) {
     return new GlucoseDataChart([
       new charts.Series<GlucoseData, DateTime>(
         id: 'Glucose',
@@ -224,7 +226,7 @@ class GlucoseDataChart extends StatelessWidget {
         measureFn: (GlucoseData d, _) => d.value,
         data: buff,
       )
-    ]);
+    ], key: key);
   }
 
   @override

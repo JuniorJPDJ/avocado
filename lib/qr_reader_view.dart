@@ -4,8 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
+import 'AvocadoState.dart';
+
 class QRReaderView extends StatefulWidget {
-  const QRReaderView({
+  final AvocadoState state;
+
+  const QRReaderView(
+    this.state, {
     Key key,
   }) : super(key: key);
 

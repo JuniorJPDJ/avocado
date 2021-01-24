@@ -7,12 +7,40 @@ import 'GlucoseData.dart';
 
 // TODO: handle back button and ask if really want to cancel edit
 
+Widget buildDeleteAlarmDialog(
+    AvocadoState state, BuildContext context, Alarm alarm) {
+  return new AlertDialog(
+    title: Text('Are you sure you want to delete alarm "${alarm.name}"?'),
+    content: new Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+    ),
+    actions: <Widget>[
+      new FlatButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+          state.removeAlarm(alarm);
+        },
+        textColor: Theme.of(context).primaryColor,
+        child: const Text('Delete'),
+      ),
+      new FlatButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        textColor: Theme.of(context).primaryColor,
+        child: const Text('Cancel'),
+      ),
+    ],
+  );
+}
+
 class AlarmEditView extends StatefulWidget {
   final AvocadoState state;
   final Alarm alarm;
   final GlucoseDataSource dataSource;
 
-  AlarmEditView(this.state, this.alarm, [dataSource])
+  AlarmEditView(this.state, this.alarm, [GlucoseDataSource dataSource])
       : this.dataSource = alarm == null ? dataSource : alarm.source {
     if (this.dataSource == null) throw StateError("No datasource specified");
   }

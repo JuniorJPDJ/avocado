@@ -45,7 +45,7 @@ class MainDrawer extends StatelessWidget {
                     leading: Icon(Icons.connect_without_contact),
                     title: Text('Connect new data source'),
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                             builder: (context) => ConnectSourceView(state)),
@@ -56,7 +56,7 @@ class MainDrawer extends StatelessWidget {
                         leading: Icon(Icons.speaker_phone_outlined),
                         title: Text(source.sourceId),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>

@@ -2,7 +2,7 @@ import 'package:rxdart/rxdart.dart';
 
 import 'GlucoseData.dart';
 
-class TmpDataSource
+class TestDataSource
     with CalibrableGlucoseDataSourceMixin
     implements
         CalibrableGlucoseDataSource,
@@ -16,7 +16,7 @@ class TmpDataSource
   num calibrationFactor;
   BehaviorSubject<GenericCalibrableGlucoseData> dataStream;
 
-  TmpDataSource([this.i = 5, this.calibrationFactor = 10]) {
+  TestDataSource([this.i = 5, this.calibrationFactor = 10]) {
     _setup();
   }
 
@@ -31,16 +31,16 @@ class TmpDataSource
   }
 
   @override
-  String get sourceId => "TMP_DATA_SRC_$_id";
+  String get sourceId => "TEST_SRC_$_id";
 
   @override
   String get instanceData => "$i|$calibrationFactor";
 
   @override
-  final String typeName = "TmpDataSource";
+  final String typeName = "TestDataSource";
 
   @override
-  TmpDataSource.deserialize(String instanceData) {
+  TestDataSource.deserialize(String instanceData) {
     var data = instanceData.split("|");
 
     i = int.parse(data[0]);

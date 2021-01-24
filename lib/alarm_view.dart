@@ -10,9 +10,10 @@ class AlarmView extends StatefulWidget {
   final Alarm alarm;
   final GlucoseData data;
 
-  AlarmView(this.state, AlarmTrigger trigger)
+  AlarmView(this.state, AlarmTrigger trigger, {Key key})
       : alarm = trigger.alarm,
-        data = trigger.data;
+        data = trigger.data,
+        super(key: key);
 
   AlarmViewState createState() => AlarmViewState(state, alarm, data);
 }

@@ -17,8 +17,8 @@ GlucoseDataSource deserializeGlucoseDataSource(
   // Dart, you suck.
   // Yes. I really can't override static/factory/constructor and have to hardcode that.
   switch (typeName) {
-    case "TmpDataSource":
-      return TmpDataSource.deserialize(instanceData);
+    case "TestDataSource":
+      return TestDataSource.deserialize(instanceData);
     case "TomatoBridge":
       return TomatoBridge.deserialize(instanceData);
     default:
@@ -198,9 +198,10 @@ class AvocadoState {
   }
 
   Future<void> addDataSource(GlucoseDataSource source) async {
-    await _openDb();
     if (glucoseData.containsKey(source))
       throw StateError("Data source is already registered");
+
+    await _openDb();
 
     sourceIds[source.sourceId] = source;
     var buf = glucoseData[source] = GlucoseDataBuffer();
