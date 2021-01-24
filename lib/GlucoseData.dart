@@ -110,6 +110,9 @@ abstract class BatteryPowered {
   num get batteryLevel;
 }
 
+// TODO: better name for Lifetimable
 abstract class Lifetimable {
   Duration get remainingLifeTime;
 }
+
+abstract class Sharable {}

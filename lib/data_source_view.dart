@@ -171,39 +171,38 @@ class DataSourceView extends StatelessWidget {
                       state.glucoseData[dataSource]),
                 )),
           ),
-          Container(
-              margin: const EdgeInsets.only(top: 20.0, left: 20),
-              child: Row(
-                children: <Widget>[
-                  if (dataSource is BatteryPowered) ...[
+          if (dataSource is BatteryPowered)
+            Container(
+                margin: const EdgeInsets.only(top: 20.0, left: 20),
+                child: Row(
+                  children: <Widget>[
                     Icon(Icons.battery_std, color: Colors.blue),
                     Text(
                         'Battery: ${(dataSource as BatteryPowered).batteryLevel}')
                   ],
-                ],
-              )),
-          Container(
-              margin: const EdgeInsets.only(top: 20.0, left: 20),
-              child: Row(children: <Widget>[
-                if (dataSource is Lifetimable) ...[
+                )),
+          if (dataSource is Lifetimable)
+            Container(
+                margin: const EdgeInsets.only(top: 20.0, left: 20),
+                child: Row(children: <Widget>[
                   Icon(Icons.calendar_today, color: Colors.blue),
                   Text(
                       'Sensor remaining lifetime: ${(dataSource as Lifetimable).remainingLifeTime}')
-                ]
-              ])),
-          Container(
-              margin: const EdgeInsets.only(right: 100, left: 100, top: 50),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => QRShareView()),
-                  );
-                },
-                child: Text(
-                  'Share your data',
-                ),
-              ))
+                ])),
+          if (dataSource is Sharable)
+            Container(
+                margin: const EdgeInsets.only(right: 100, left: 100, top: 50),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => QRShareView()),
+                    );
+                  },
+                  child: Text(
+                    'Share your data',
+                  ),
+                ))
         ]),
         drawer: MainDrawer(state));
   }

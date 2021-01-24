@@ -4,7 +4,11 @@ import 'GlucoseData.dart';
 
 class TmpDataSource
     with CalibrableGlucoseDataSourceMixin
-    implements CalibrableGlucoseDataSource, BatteryPowered, Lifetimable {
+    implements
+        CalibrableGlucoseDataSource,
+        BatteryPowered,
+        Lifetimable,
+        Sharable {
   static int tmpId = 0;
 
   int _id;

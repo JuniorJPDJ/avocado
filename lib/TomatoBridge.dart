@@ -19,7 +19,8 @@ class TomatoBridge
         GlucoseDataSource,
         QuerableGlucoseDataSource,
         Lifetimable,
-        BatteryPowered {
+        BatteryPowered,
+        Sharable {
   // https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.3.0%2Fble_sdk_app_nus_eval.html
   static const String NRF_SERVICE = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
   static const String NRF_CHR_TX = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
