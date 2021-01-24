@@ -107,19 +107,20 @@ class AlarmEditViewState extends State<AlarmEditView> {
             )
           ],
         ),
-        body: Column(children: <Widget>[
+        body: Center(
+            child: Column(children: <Widget>[
           Container(
-            margin: const EdgeInsets.only(top: 15),
+            margin: const EdgeInsets.all(10.0),
             child: TextField(
               controller: name,
               decoration: InputDecoration(hintText: 'Alarm name'),
             ),
           ),
           Container(
+            margin: const EdgeInsets.all(10.0),
             child: TextField(
               controller: value,
-              decoration:
-                  InputDecoration(hintText: 'Sugar value triggering alarm'),
+              decoration: InputDecoration(hintText: 'Sugar value'),
               keyboardType: TextInputType.number,
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly
@@ -127,6 +128,7 @@ class AlarmEditViewState extends State<AlarmEditView> {
             ),
           ),
           Container(
+            margin: const EdgeInsets.all(10.0),
             child: StreamBuilder<void>(
               stream: Stream.periodic(Duration(milliseconds: 200)),
               builder: (_, __) => snoozedTo == null ||
@@ -137,21 +139,29 @@ class AlarmEditViewState extends State<AlarmEditView> {
             ),
           ),
           Container(
-              child: Center(
-                  child: ButtonBar(children: <Widget>[
-            ElevatedButton(
-                onPressed: () => _snooze(15),
-                child: new Text('snooze for\n15 min')),
-            ElevatedButton(
-                onPressed: () => _snooze(30),
-                child: new Text('snooze for\n30 min')),
-            ElevatedButton(
-                onPressed: () => _snooze(45),
-                child: new Text('snooze for\n45 min')),
-            ElevatedButton(
-                onPressed: () => setState(() => snoozedTo = null),
-                child: new Text('disable\nsnooze'))
-          ]))),
+              child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Row(children: [
+                    //const Spacer(),
+                    ButtonBar(children: <Widget>[
+                      ElevatedButton(
+                          onPressed: () => _snooze(15),
+                          child: new Text('snooze for\n15 min',
+                              style: TextStyle(fontSize: 10))),
+                      ElevatedButton(
+                          onPressed: () => _snooze(30),
+                          child: new Text('snooze for\n30 min',
+                              style: TextStyle(fontSize: 10))),
+                      ElevatedButton(
+                          onPressed: () => _snooze(45),
+                          child: new Text('snooze for\n45 min',
+                              style: TextStyle(fontSize: 10))),
+                      ElevatedButton(
+                          onPressed: () => setState(() => snoozedTo = null),
+                          child: new Text('disable\nsnooze',
+                              style: TextStyle(fontSize: 10)))
+                    ])
+                  ]))),
           Container(
               child: ToggleButtons(
                   onPressed: (i) => setState(() => greater = i == 0),
@@ -166,7 +176,7 @@ class AlarmEditViewState extends State<AlarmEditView> {
                   child: Text('Lower'),
                 ),
               ]))
-        ]));
+        ])));
   }
 
   void _snooze(int minutes) => setState(
