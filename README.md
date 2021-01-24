@@ -1,6 +1,6 @@
-# pretty_things
+# Avocado Care
 
-A new Flutter application.
+Flutter based iOS and Android app for diabetes
 
 ## Getting Started
 

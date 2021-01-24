@@ -37,8 +37,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.pretty_things"
+        applicationId "com.github.juniorjpdj.avocado"
         minSdkVersion 20
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
@@ -60,4 +59,7 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.firebase:firebase-messaging:21.0.1'
 }
+
+apply plugin: 'com.google.gms.google-services'

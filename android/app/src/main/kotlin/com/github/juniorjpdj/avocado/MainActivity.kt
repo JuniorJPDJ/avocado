@@ -1,4 +1,4 @@
-package com.example.pretty_things
+package com.github.juniorjpdj.avocado
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "364103790295",
+    "project_id": "avocado-care",
+    "storage_bucket": "avocado-care.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364103790295:android:86cc6293648c18c330ca92",
+        "android_client_info": {
+          "package_name": "com.github.juniorjpdj.avocado"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364103790295-907c25rfpnruaqc35b5ekvju3joccq18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl2hCgwhK6xOnHWzsbtVGup6FHnR6PEUk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364103790295-907c25rfpnruaqc35b5ekvju3joccq18.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
