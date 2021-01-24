@@ -218,9 +218,8 @@ class DeviceScreen extends StatelessWidget {
                         bridge.rxPacketStream.listen((packet) {
                           data.write(parseBTPacket(packet));
                         });
+                        await state.addDataSource(bridge);
                         await bridge.initSensor();
-
-                        state.addDataSource(bridge);
 
                         for (int i = 0;; ++i) {
                           await Future<void>.delayed(
