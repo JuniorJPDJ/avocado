@@ -14,6 +14,8 @@ void main() async {
 
   await state.loadSourcesFromDb();
 
+  state.querableLoop();
+
   if (state.glucoseData.length > 0)
     state.glucoseDataSources.first.dataStream.listen(
         (value) => FlutterAppBadger.updateBadgeCount(value.value.toInt()));
