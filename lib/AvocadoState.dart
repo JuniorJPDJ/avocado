@@ -10,7 +10,6 @@ import 'GlucoseData.dart';
 import 'GlucoseTest.dart';
 import 'TomatoBridge.dart';
 
-// TODO: make calibration of data source call db update
 
 GlucoseDataSource deserializeGlucoseDataSource(
     String typeName, String instanceData) {
@@ -207,6 +206,7 @@ class AvocadoState {
     var buf = glucoseData[source] = GlucoseDataBuffer();
 
     source.dataStream.listen((data) => addMeasurement(source, data));
+    source.sourceUpdates.listen((_) => _handleSourceUpdate(source));
 
     // if null - not inserted, already exists, need to load data
     if (await db.insert(
@@ -290,6 +290,14 @@ class AvocadoState {
         where: "id = ?", whereArgs: [alarmIds[alarm]]);
   }
 
+  void _handleSourceUpdate(GlucoseDataSource source) async {
+    await _openDb();
+
+    await db.update(
+        'glucose_data_source', {'instance_data': source.instanceData},
+        where: "id = ?", whereArgs: [source.sourceId]);
+  }
+
   Iterable<GlucoseDataSource> get glucoseDataSources => glucoseData.keys;
 
   void addMeasurement(GlucoseDataSource source, GlucoseData data) {
@@ -298,7 +306,7 @@ class AvocadoState {
     saveDataToDb(data);
     glucoseData[source].add(data);
 
-    // TODO: try to run alarm only if new enough
+    // TODO: try to run alarm only if data new enough (older data will also go here on backfill)
     for (Alarm alarm in alarms[source]) {
       if (alarm.enabled &&
           !alarm.isSnoozed &&

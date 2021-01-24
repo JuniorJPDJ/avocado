@@ -59,6 +59,8 @@ class GenericCalibrableGlucoseData with CalibrableGlucoseDataMixin {
 abstract class GlucoseDataSource implements StringSerializable {
   BehaviorSubject<GlucoseData> get dataStream;
 
+  BehaviorSubject<void> sourceUpdates;
+
   String get sourceId;
 }
 
@@ -83,6 +85,7 @@ abstract class CalibrableGlucoseDataSourceMixin
   void calibrate(num factor) {
     lastReading?.calibrate(factor);
     calibrationFactor = factor;
+    sourceUpdates.add(null);
   }
 
   void calibrateByLast(num lastReading) {

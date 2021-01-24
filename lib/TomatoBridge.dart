@@ -36,6 +36,9 @@ class TomatoBridge
   BehaviorSubject<TomatoBridgePacket> rxPacketStream;
   BehaviorSubject<FreestyleLibreGlucoseData> dataStream;
 
+  @override
+  BehaviorSubject<void> sourceUpdates;
+
   num calibrationFactor;
   Duration connTimeout;
 
@@ -46,6 +49,7 @@ class TomatoBridge
     _rxBuf = Uint8List(0);
     rxPacketStream = BehaviorSubject();
     dataStream = BehaviorSubject();
+    sourceUpdates = BehaviorSubject();
 
     rxPacketStream.listen(_onPacket);
   }

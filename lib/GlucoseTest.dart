@@ -16,6 +16,9 @@ class TestDataSource
   num calibrationFactor;
   BehaviorSubject<GenericCalibrableGlucoseData> dataStream;
 
+  @override
+  BehaviorSubject<void> sourceUpdates;
+
   TestDataSource([this.i = 5, this.calibrationFactor = 10]) {
     _setup();
   }
@@ -23,6 +26,7 @@ class TestDataSource
   void _setup() {
     _id = tmpId++;
     dataStream = BehaviorSubject();
+    sourceUpdates = BehaviorSubject();
 
     dataStream.addStream(Stream.periodic(
         Duration(seconds: 5),
