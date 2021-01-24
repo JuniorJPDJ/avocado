@@ -39,7 +39,7 @@ class TomatoBridge
   @override
   BehaviorSubject<void> sourceUpdates;
 
-  num calibrationFactor;
+  num calibrationFactor = 8.5;
   Duration connTimeout;
 
   TOMATO_STATE state;
