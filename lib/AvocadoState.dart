@@ -196,6 +196,14 @@ class AvocadoState {
     await db.insert("glucose_data", map);
   }
 
+  Future<void> querableLoop() async {
+    await for(var _ in Stream.periodic(Duration(minutes: 4))){
+      for(GlucoseDataSource source in glucoseDataSources)
+        if(source is QuerableGlucoseDataSource)
+          await source.query();
+    }
+  }
+
   Future<void> addDataSource(GlucoseDataSource source) async {
     if (glucoseData.containsKey(source))
       throw StateError("Data source is already registered");
