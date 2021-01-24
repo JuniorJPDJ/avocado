@@ -9,7 +9,7 @@ import 'Alarm.dart';
 import 'GlucoseData.dart';
 import 'GlucoseTest.dart';
 import 'TomatoBridge.dart';
-
+import 'upload_data.dart';
 
 GlucoseDataSource deserializeGlucoseDataSource(
     String typeName, String instanceData) {
@@ -197,10 +197,9 @@ class AvocadoState {
   }
 
   Future<void> querableLoop() async {
-    await for(var _ in Stream.periodic(Duration(minutes: 4))){
-      for(GlucoseDataSource source in glucoseDataSources)
-        if(source is QuerableGlucoseDataSource)
-          await source.query();
+    await for (var _ in Stream.periodic(Duration(minutes: 4))) {
+      for (GlucoseDataSource source in glucoseDataSources)
+        if (source is QuerableGlucoseDataSource) await source.query();
     }
   }
 
@@ -323,6 +322,12 @@ class AvocadoState {
               : alarm.value > data.value)) {
         alarmAppears.add(AlarmTrigger(alarm, data));
       }
+    }
+
+    // TODO: only upload data when user want it
+    // TODO: store upload password in db (don't hardcode it.)
+    if (source is Sharable) {
+      upload_data(data, 'lolWhoNeedsPasswords');
     }
   }
 }

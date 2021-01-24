@@ -41,8 +41,7 @@ class GenericCalibrableGlucoseData with CalibrableGlucoseDataMixin {
       this.rawValue, this.calibrationFactor, this.time, this.source);
 
   @override
-  String get instanceData =>
-      "$rawValue|$calibrationFactor|${time.toString()}|${source.sourceId}";
+  String get instanceData => "$rawValue|$calibrationFactor|${time.toString()}";
 
   @override
   factory GenericCalibrableGlucoseData.deserialize(

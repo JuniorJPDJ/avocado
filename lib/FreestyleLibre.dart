@@ -80,8 +80,7 @@ class FreestyleLibreGlucoseData
   final String typeName = "GenericCalibrableGlucoseData";
 
   @override
-  String get instanceData =>
-      "$rawValue|$calibrationFactor|${time.toString()}|${source?.sourceId ?? ""}";
+  String get instanceData => "$rawValue|$calibrationFactor|${time.toString()}";
 
   static GenericCalibrableGlucoseData deserialize(
       CalibrableGlucoseDataSource src, String instanceData) {
