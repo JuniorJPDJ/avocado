@@ -129,17 +129,21 @@ class FreestyleLibrePacket {
     // loads history values (ring buffer, starting at _indexHistory. byte 124-315)
     // history are readings in 15 minutes interval
     // most recent value corresponds to (sensorAge - 3) % 15 + 3 ago (thanks @dspnikder)
-    for (var index = 0; index < 32; index++)
-      yield FreestyleLibreGlucoseData(this, index, _calibrationFactor,
+    for (var index = 0; index < 32; index++) {
+      var r = FreestyleLibreGlucoseData(this, index, _calibrationFactor,
           historical: true);
+      if(r.rawValue > 0) yield r;
+    }
   }
 
   Iterable<FreestyleLibreGlucoseData> iterTrend() sync* {
     // loads trend values (ring buffer, starting at _indexTrend. byte 28-123)
     // trend values are readings in 1 minute interval
     // most recent value corresponds to sensorAge timing
-    for (var index = 0; index < 16; index++)
-      yield FreestyleLibreGlucoseData(this, index, _calibrationFactor);
+    for (var index = 0; index < 16; index++) {
+      var r = FreestyleLibreGlucoseData(this, index, _calibrationFactor);
+      if (r.rawValue > 0) yield r;
+    }
   }
 
   // https://github.com/NightscoutFoundation/xDrip/blob/2021.01.13/app/src/main/java/com/eveningoutpost/dexdrip/UtilityModels/LibreUtils.java#L68
