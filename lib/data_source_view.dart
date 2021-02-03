@@ -187,7 +187,7 @@ class DataSourceView extends StatelessWidget {
                 child: Row(children: <Widget>[
                   Icon(Icons.calendar_today, color: Colors.blue),
                   Text(
-                      'Sensor remaining lifetime: ${(dataSource as Lifetimable).remainingLifeTime}')
+                      'Sensor remaining lifetime: ${(dataSource as Lifetimable).remainingLifeTime.inDays} days')
                 ])),
           if (dataSource is Sharable)
             Container(

@@ -65,6 +65,10 @@ class MainDrawer extends StatelessWidget {
                       )),
                   ListTile(
                     leading: Icon(Icons.settings),
+                    title: Text('Settings'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.bar_chart),
                     title: Text('About'),
                     onTap: () {
                       Navigator.push(
@@ -72,10 +76,6 @@ class MainDrawer extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => AboutView()),
                       );
                     },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.bar_chart),
-                    title: Text('About'),
                   ),
                 ],
               ),

@@ -38,7 +38,7 @@ dependencies:
   flutter_app_badger: ^1.1.2
   firebase_messaging: ^7.0.3
   http: ^0.12.2
-
+  kms_flutter: ^0.1.0
 
 dev_dependencies:
   flutter_test:

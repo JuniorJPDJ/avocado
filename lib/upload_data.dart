@@ -1,6 +1,11 @@
 import 'package:avocado/GlucoseData.dart';
 import 'package:http/http.dart' as http;
+import 'package:kms/kms.dart';
+import 'package:kms_flutter/kms_flutter.dart';
 
+
+
+// TODO: GUI setting for cloud server
 const CLOUD_SERVER_BASE_URL = "https://avocado.juniorjpdj.pl/";
 
 String url(url) => CLOUD_SERVER_BASE_URL + url;

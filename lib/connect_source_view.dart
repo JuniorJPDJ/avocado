@@ -25,7 +25,7 @@ class ConnectSourceView extends StatelessWidget {
             leading: Icon(Icons.bluetooth_connected),
             title: Text('Connect your MiaoMiao'),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => BluetoothMainView(state)),
@@ -36,7 +36,7 @@ class ConnectSourceView extends StatelessWidget {
             leading: Icon(Icons.cloud_download_outlined),
             title: Text('Connect to the cloud'),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => QRReaderView(state)),
               );
